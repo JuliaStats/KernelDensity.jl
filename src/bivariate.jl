@@ -15,8 +15,8 @@ function kde(x::RealVector, y::RealVector; width::Float64=NaN, resolution::Int=2
     end
 
     if isnan(width)
-        h1 = bandwidth(x)
-        h2 = bandwidth(y)
+        h1 = kde_bandwidth(x)
+        h2 = kde_bandwidth(y)
     else
         h1 = width
         h2 = width

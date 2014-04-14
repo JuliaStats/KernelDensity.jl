@@ -4,8 +4,16 @@ immutable UnivariateKDE{R<:Range}
     density::Vector{Float64}
 end
 
+# construct kernel from bandwidth
+kernel_dist(::Type{Normal},w::Real) = Normal(0.0,w)
+kernel_dist(::Type{Uniform},w::Real) = (s = w/std(Uniform(-1.0,1.0)); Uniform(s,s))
+
+typealias LocationScale Union(Laplace,Logistic,TriangularDist)
+kernel_dist{D}(::Type{D},w::Real) = (s = w/std(D(0.0,1.0)); D(0.0,s))
+
+
 # Silverman's rule of thumb for KDE bandwidth selection
-function bandwidth(data::Vector{Float64}, alpha::Float64 = 0.9)
+function kde_bandwidth(data::Vector{Float64}, alpha::Float64 = 0.9)
     # Determine length of data
     ndata = length(data)
 
@@ -28,8 +36,6 @@ function bandwidth(data::Vector{Float64}, alpha::Float64 = 0.9)
     return alpha * width * ndata^(-0.2)
 end
 
-# construct kernel from bandwidth
-kernel_dist(::Type{Normal},w::Real) = Normal(0.0,w)
 
 # Roughly based on:
 #   B. W. Silverman (1982) "Algorithm AS 176: Kernel Density Estimation Using
@@ -42,26 +48,24 @@ kernel_dist(::Type{Normal},w::Real) = Normal(0.0,w)
 #   Journal of the Royal Statistical Society. Series C (Applied Statistics) ,
 #   Vol. 33, No. 1, pp. 120-122
 #   URL: http://www.jstor.org/stable/2347674
-# tabulate data for kde
 
-function kde_tab(data::RealVector, npoints::Int=2048)
-    # Determine length of data
-    ndata = length(data)
-
-    # Double-pad to eliminate cyclic correlation from fft
+# default kde range
+# Should extend enough beyond the data range to avoid cyclic correlation from the FFT
+function kde_range(data::RealVector, bandwidth::Real)
     lo, hi = extrema(data)
-    spread = hi-lo
-    lo -= 0.5*spread
-    hi += 0.5*spread
+    lo - 4.0*bandwidth, hi + 4.0*bandwidth
+end
+
+
+# tabulate data for kde
+function tabulate(data::RealVector, midpoints::Range)
+    ndata = length(data)
+    npoints = length(midpoints)
+    s = step(midpoints)
 
     # Set up a grid for discretized data
     grid = zeros(Float64, npoints)
-
-    # Define some more constants
-    step = (hi - lo) / npoints
-    midpoints = lo:step:hi
-
-    ainc = 1.0 / (ndata*step*step)
+    ainc = 1.0 / (ndata*s*s)
 
     # weighted discetization (cf. Jones and Lotwick)
     for x in data
@@ -78,8 +82,10 @@ function kde_tab(data::RealVector, npoints::Int=2048)
 end
 
 
-# convolve raw KDE with distribution
-function conv(k::UnivariateKDE, d::Distribution)
+
+# convolve raw KDE with kernel
+# TODO: use in-place fft
+function conv(k::UnivariateKDE, dist::Distribution)
     # Transform to Fourier basis
     K = length(k.density)
     ft = rfft(k.density)
@@ -92,7 +98,7 @@ function conv(k::UnivariateKDE, d::Distribution)
     #  = A * fft(N_k/N)[-t*s*K/2pi + 1]
     c = -twoπ/(step(k.x)*K)
     for j = 1:length(ft)
-        ft[j] *= cf(d,(j-1)*c)
+        ft[j] *= cf(dist,(j-1)*c)
     end
 
     # Invert the Fourier transform to get the KDE
@@ -100,15 +106,33 @@ function conv(k::UnivariateKDE, d::Distribution)
 end
 
 
-function kde(data::RealVector, d::Distribution ; npoints::Int=2048)
-    # tabulate data
-    k = kde_tab(data, npoints)
-    # convolve with distribution
-    conv(k,d)
+function kde(data::RealVector, midpoints::Range, dist::Distribution)
+    k = tabulate(data, midpoints)
+    conv(k,dist)
 end
 
-function kde(data::RealVector; npoints::Int=2048, width=bandwidth(data), kernel=Normal)    
-    width <= 0.0 && error("Bandwidth must be positive")
-    d = kernel_dist(kernel,width)
-    kde(data,d; npoints=npoints)
+function kde(data::RealVector, dist::Distribution; 
+             endpoints::(Real,Real)=kde_range(data,std(dist)), npoints::Int=2048)
+    
+    lo, hi = endpoints
+    lo < hi || error("endpoints (a,b) must have a < b")
+
+    step = (hi - lo) / npoints
+    midpoints = lo:step:hi
+    
+    kde(data,midpoints,dist)
+end
+
+function kde(data::RealVector, midpoints::Range; 
+            bandwidth=kde_bandwidth(data), kernel=Normal)
+    bandwidth <= 0.0 && error("Bandwidth must be positive")
+    dist = kernel_dist(kernel,bandwidth)
+    kde(data,midpoints,dist)
+end
+
+function kde(data::RealVector; bandwidth=kde_bandwidth(data), kernel=Normal, 
+             npoints::Int=2048, endpoints::(Real,Real)=kde_range(data,bandwidth))
+    bandwidth <= 0.0 && error("Bandwidth must be positive")
+    dist = kernel_dist(kernel,bandwidth)
+    kde(data,dist;endpoints=endpoints,npoints=npoints)
 end

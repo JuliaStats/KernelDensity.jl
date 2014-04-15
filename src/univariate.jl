@@ -13,7 +13,7 @@ kernel_dist{D}(::Type{D},w::Real) = (s = w/std(D(0.0,1.0)); D(0.0,s))
 
 
 # Silverman's rule of thumb for KDE bandwidth selection
-function kde_bandwidth(data::Vector{Float64}, alpha::Float64 = 0.9)
+function default_bandwidth(data::Vector{Float64}, alpha::Float64 = 0.9)
     # Determine length of data
     ndata = length(data)
 
@@ -51,11 +51,19 @@ end
 
 # default kde range
 # Should extend enough beyond the data range to avoid cyclic correlation from the FFT
-function kde_range(data::RealVector, bandwidth::Real)
+function kde_boundary(data::RealVector, bandwidth::Real)
     lo, hi = extrema(data)
     lo - 4.0*bandwidth, hi + 4.0*bandwidth
 end
 
+# convert boundary and npoints to Range object
+function kde_range(boundary::(Real,Real), npoints::Int)
+    lo, hi = boundary
+    lo < hi || error("boundary (a,b) must have a < b")
+
+    step = (hi - lo) / (npoints-1)
+    lo:step:hi
+end
 
 # tabulate data for kde
 function tabulate(data::RealVector, midpoints::Range)
@@ -67,7 +75,7 @@ function tabulate(data::RealVector, midpoints::Range)
     grid = zeros(Float64, npoints)
     ainc = 1.0 / (ndata*s*s)
 
-    # weighted discetization (cf. Jones and Lotwick)
+    # weighted discretization (cf. Jones and Lotwick)
     for x in data
         k = searchsortedfirst(midpoints,x)
         j = k-1
@@ -81,11 +89,9 @@ function tabulate(data::RealVector, midpoints::Range)
     UnivariateKDE(midpoints, grid)
 end
 
-
-
 # convolve raw KDE with kernel
 # TODO: use in-place fft
-function conv(k::UnivariateKDE, dist::Distribution)
+function conv(k::UnivariateKDE, dist::UnivariateDistribution)
     # Transform to Fourier basis
     K = length(k.density)
     ft = rfft(k.density)
@@ -105,34 +111,29 @@ function conv(k::UnivariateKDE, dist::Distribution)
     UnivariateKDE(k.x, irfft(ft, K))
 end
 
-
-function kde(data::RealVector, midpoints::Range, dist::Distribution)
+# main kde interface methods
+function kde(data::RealVector, midpoints::Range, dist::UnivariateDistribution)
     k = tabulate(data, midpoints)
     conv(k,dist)
 end
 
-function kde(data::RealVector, dist::Distribution; 
-             endpoints::(Real,Real)=kde_range(data,std(dist)), npoints::Int=2048)
+function kde(data::RealVector, dist::UnivariateDistribution;
+             boundary::(Real,Real)=kde_boundary(data,std(dist)), npoints::Int=2048)
     
-    lo, hi = endpoints
-    lo < hi || error("endpoints (a,b) must have a < b")
-
-    step = (hi - lo) / npoints
-    midpoints = lo:step:hi
-    
+    midpoints = kde_range(boundary,npoints)
     kde(data,midpoints,dist)
 end
 
-function kde(data::RealVector, midpoints::Range; 
-            bandwidth=kde_bandwidth(data), kernel=Normal)
-    bandwidth <= 0.0 && error("Bandwidth must be positive")
+function kde(data::RealVector, midpoints::Range;
+            bandwidth=default_bandwidth(data), kernel=Normal)
+    bandwidth > 0.0 || error("Bandwidth must be positive")
     dist = kernel_dist(kernel,bandwidth)
     kde(data,midpoints,dist)
 end
 
-function kde(data::RealVector; bandwidth=kde_bandwidth(data), kernel=Normal, 
-             npoints::Int=2048, endpoints::(Real,Real)=kde_range(data,bandwidth))
-    bandwidth <= 0.0 && error("Bandwidth must be positive")
+function kde(data::RealVector; bandwidth=default_bandwidth(data), kernel=Normal,
+             npoints::Int=2048, boundary::(Real,Real)=kde_boundary(data,bandwidth))
+    bandwidth > 0.0 || error("Bandwidth must be positive")
     dist = kernel_dist(kernel,bandwidth)
-    kde(data,dist;endpoints=endpoints,npoints=npoints)
+    kde(data,dist;boundary=boundary,npoints=npoints)
 end

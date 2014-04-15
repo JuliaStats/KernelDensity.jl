@@ -1,0 +1,6 @@
+* Interface to plotting libs
+* Use in-place FFT
+* Spline interpolation
+* Bias correction
+* Improve bandwidth selection (particularly for bivariate)
+* Allow use of arbitrary bivariate kernels

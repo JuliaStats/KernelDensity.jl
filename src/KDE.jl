@@ -3,8 +3,8 @@ module KDE
 using StatsBase
 using Distributions
 
-import Base: conv, FloatRange
-import StatsBase: RealVector
+import Base: conv
+import StatsBase: RealVector, RealMatrix
 import Distributions: twoπ
 
 export kde, UnivariateKDE, BivariateKDE

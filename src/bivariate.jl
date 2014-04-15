@@ -1,46 +1,114 @@
 # Store both grid and density for KDE over R2
-immutable BivariateKDE
-    x::Vector{Float64}
-    y::Vector{Float64}
+immutable BivariateKDE{Rx<:Range,Ry<:Range}
+    x::Rx
+    y::Ry
     density::Matrix{Float64}
 end
 
+function kernel_dist{D<:UnivariateDistribution}(::Type{D},w::(Real,Real))
+    kernel_dist(D,w[1]), kernel_dist(D,w[2])
+end
+function kernel_dist{Dx<:UnivariateDistribution,Dy<:UnivariateDistribution}(::Type{(Dx,Dy)},w::(Real,Real))
+    kernel_dist(Dx,w[1]), kernel_dist(Dy,w[2])
+end
 
-# Algorithm from MASS Chapter 5 for calculating 2D KDE
-function kde(x::RealVector, y::RealVector; width::Float64=NaN, resolution::Int=25)
-    n = length(x)
+# TODO: there are probably better choices.
+function default_bandwidth(data::(RealVector,RealVector))
+    default_bandwidth(data[1]), default_bandwidth(data[2])
+end
 
-    if length(y) != n
-        error("x and y must have the same length")
-    end
+# tabulate data for kde
+function tabulate(data::(RealVector, RealVector), midpoints::(Range, Range))
+    xdata, ydata = data
+    ndata = length(xdata)
+    length(ydata) == ndata || error("data vectors must be of same length")
 
-    if isnan(width)
-        h1 = kde_bandwidth(x)
-        h2 = kde_bandwidth(y)
-    else
-        h1 = width
-        h2 = width
-    end
+    xmid, ymid = midpoints
+    nx, ny = length(xmid), length(ymid)
+    sx, sy = step(xmid), step(ymid)
 
-    min_x, max_x = extrema(x)
-    min_y, max_y = extrema(y)
+    # Set up a grid for discretized data
+    grid = zeros(Float64, nx, ny)
+    ainc = 1.0 / (ndata*(sx*sy)^2)
 
-    grid_x = [min_x:((max_x - min_x) / (resolution - 1)):max_x]
-    grid_y = [min_y:((max_y - min_y) / (resolution - 1)):max_y]
-
-    mx = Array(Float64, resolution, n)
-    my = Array(Float64, resolution, n)
-    for i in 1:resolution
-        for j in 1:n
-            mx[i, j] = pdf(Normal(), (grid_x[i] - x[j]) / h1)
-            my[i, j] = pdf(Normal(), (grid_y[i] - y[j]) / h2)
+    # weighted discretization (cf. Jones and Lotwick)
+    for (x, y) in zip(xdata,ydata)
+        kx, ky = searchsortedfirst(xmid,x), searchsortedfirst(ymid,y)
+        jx, jy = kx-1, ky-1
+        if 1 <= jx <= nx && 1 <= jy <= ny
+            grid[jx,jy] += (xmid[kx]-x)*(ymid[ky]-y)*ainc
+            grid[kx,jy] += (x-xmid[jx])*(ymid[ky]-y)*ainc
+            grid[jx,ky] += (xmid[kx]-x)*(y-ymid[jy])*ainc
+            grid[kx,ky] += (x-xmid[jx])*(y-ymid[jy])*ainc
         end
     end
 
-    z = A_mul_Bt(mx, my)
-    for i in 1:(resolution^2)
-        z[i] /= (n * h1 * h2)
+    # returns an un-convolved KDE
+    BivariateKDE(xmid, ymid, grid)
+end
+
+# convolution with product distribution of two univariates distributions
+function conv(k::BivariateKDE, dist::(UnivariateDistribution,UnivariateDistribution) )
+    # Transform to Fourier basis
+    Kx, Ky = size(k.density)
+    ft = rfft(k.density)
+
+    distx, disty = dist
+
+    # Convolve fft with characteristic function of kernel
+    cx = -twoπ/(step(k.x)*Kx)
+    cy = -twoπ/(step(k.y)*Ky)
+    for j = 1:size(ft,2)
+        for i = 1:size(ft,1)
+            ft[i,j] *= cf(distx,(i-1)*cx)*cf(disty,min(j-1,Ky-j+1)*cy)
+        end
     end
 
-    return BivariateKDE(grid_x, grid_y, z)
+    # Invert the Fourier transform to get the KDE
+    BivariateKDE(k.x, k.y, irfft(ft, Kx))
+end
+
+typealias BivariateDistribution Union(MultivariateDistribution,(UnivariateDistribution,UnivariateDistribution))
+
+function kde(data::(RealVector, RealVector), midpoints::(Range, Range), dist::BivariateDistribution)
+    k = tabulate(data,midpoints)
+    conv(k,dist)
+end
+
+function kde(data::(RealVector, RealVector), dist::BivariateDistribution;
+             boundary::((Real,Real),(Real,Real)) = (kde_boundary(data[1],std(dist[1])),
+                                                     kde_boundary(data[2],std(dist[2]))),
+             npoints::(Int,Int)=(128,128))
+
+    xmid = kde_range(boundary[1],npoints[1])
+    ymid = kde_range(boundary[2],npoints[2])
+
+    kde(data,(xmid,ymid),dist)
+end
+
+function kde(data::(RealVector, RealVector), midpoints::(Range, Range);
+             bandwidth=default_bandwidth(data), kernel=Normal)
+
+    dist = kernel_dist(kernel,bandwidth)
+    kde(data,midpoints,dist)
+end
+
+function kde(data::(RealVector, RealVector);
+             bandwidth=default_bandwidth(data),
+             kernel=Normal,
+             boundary::((Real,Real),(Real,Real)) = (kde_boundary(data[1],bandwidth[1]),
+                                                     kde_boundary(data[2],bandwidth[2])),
+             npoints::(Int,Int)=(128,128))
+
+    dist = kernel_dist(kernel,bandwidth)
+    xmid = kde_range(boundary[1],npoints[1])
+    ymid = kde_range(boundary[2],npoints[2])
+
+    kde(data,(xmid,ymid),dist)
+end
+
+# matrix data
+function kde(data::RealMatrix,args...;kwargs...)
+    size(data,2) == 2 || error("Can only construct KDE from matrices with 2 columns.")
+    kde((data[:,1],data[:,2]),args...;kwargs...)
 end

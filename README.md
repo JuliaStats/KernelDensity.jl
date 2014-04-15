@@ -11,8 +11,8 @@ The main accessor function is `kde`:
 ```
 kde(data)
 ```
-will construct a `UnivariateKDE` object from the data. The optional keyword arguments are
-* `endpoints`: the lower and upper limits of the kde as a tuple. Due to the
+will construct a `UnivariateKDE` object from the real vector `data`. The optional keyword arguments are
+* `boundary`: the lower and upper limits of the kde as a tuple. Due to the
   fourier transforms used internally, there should be sufficient spacing to
   prevent wrap-around at the boundaries.
 * `npoints`: the number of interpolation points to use. The function uses
@@ -34,16 +34,23 @@ allows specifying the internal grid to use. Optional keyword arguments are
 kde(data, dist::Distribution)
 ```
 allows specifying the exact distribution to use as the kernel. Optional
-keyword arguments are `endpoints` and `npoints`.
+keyword arguments are `boundary` and `npoints`.
 
 ```
 kde(data, midpoints::Range, dist::Distribution)
 ```
 allows specifying both the distribution and grid.
 
-## To do
+### Bivariate
 
-* Use an in-place FFT.
-* Spline interpolation
-* Bias correction
-* Improve bandwidth selection
+The usage mirrors that of the univariate case, except that `data` is now
+either a tuple of vectors
+```
+kde((xdata, ydata))
+```
+or a matrix with two columns
+```
+kde(datamatrix)
+```
+Similarly, the optional arguments all now take tuple arguments:
+e.g. `boundary` now takes a tuple of tuples `((xlo,xhi),(ylo,yhi))`.

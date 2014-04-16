@@ -4,3 +4,4 @@
 * Bias correction
 * Improve bandwidth selection (particularly for bivariate)
 * Allow use of arbitrary bivariate kernels
+* Docs

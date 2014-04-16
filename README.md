@@ -1,6 +1,6 @@
 # KDE.jl
 
-[![Build Status](https://travis-ci.org/simonbyrne/KDE.jl.png)](https://travis-ci.org/simonbyrne/KDE.jl)
+[![Build Status](https://travis-ci.org/JuliaStats/KDE.jl.svg?branch=master)](https://travis-ci.org/JuliaStats/KDE.jl)
 
 Kernel density estimators for julia.
 

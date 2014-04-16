@@ -16,6 +16,7 @@ kernel_dist{D}(::Type{D},w::Real) = (s = w/std(D(0.0,1.0)); D(0.0,s))
 function default_bandwidth(data::Vector{Float64}, alpha::Float64 = 0.9)
     # Determine length of data
     ndata = length(data)
+    ndata <= 1 && return alpha
 
     # Calculate width using variance and IQR
     var_width = std(data)
@@ -103,12 +104,18 @@ function conv(k::UnivariateKDE, dist::UnivariateDistribution)
     #  = e^{i*t*a} \sum_{k=0}^K e^{-2pi*i*k*(-t*s*K/2pi)/K} N_k / N
     #  = A * fft(N_k/N)[-t*s*K/2pi + 1]
     c = -twoπ/(step(k.x)*K)
-    for j = 1:length(ft)
-        ft[j] *= cf(dist,(j-1)*c)
+    for j = 0:length(ft)-1
+        ft[j+1] *= cf(dist,j*c)
+    end
+
+    dens = irfft(ft, K)
+    # fix rounding error.
+    for i = 1:K
+        dens[i] = max(0.0,dens[i])
     end
 
     # Invert the Fourier transform to get the KDE
-    UnivariateKDE(k.x, irfft(ft, K))
+    UnivariateKDE(k.x, dens)
 end
 
 # main kde interface methods

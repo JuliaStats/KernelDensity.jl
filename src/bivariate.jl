@@ -58,14 +58,19 @@ function conv(k::BivariateKDE, dist::(UnivariateDistribution,UnivariateDistribut
     # Convolve fft with characteristic function of kernel
     cx = -twoπ/(step(k.x)*Kx)
     cy = -twoπ/(step(k.y)*Ky)
-    for j = 1:size(ft,2)
-        for i = 1:size(ft,1)
-            ft[i,j] *= cf(distx,(i-1)*cx)*cf(disty,min(j-1,Ky-j+1)*cy)
+    for j = 0:size(ft,2)-1
+        for i = 0:size(ft,1)-1
+            ft[i+1,j+1] *= cf(distx,i*cx)*cf(disty,min(j,Ky-j)*cy)
         end
+    end
+    dens = irfft(ft, Kx)
+
+    for i = 1:length(dens)
+        dens[i] = max(0.0,dens[i])
     end
 
     # Invert the Fourier transform to get the KDE
-    BivariateKDE(k.x, k.y, irfft(ft, Kx))
+    BivariateKDE(k.x, k.y, dens)
 end
 
 typealias BivariateDistribution Union(MultivariateDistribution,(UnivariateDistribution,UnivariateDistribution))

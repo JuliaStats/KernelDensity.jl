@@ -80,7 +80,7 @@ function tabulate(data::RealVector, midpoints::Range)
     for x in data
         k = searchsortedfirst(midpoints,x)
         j = k-1
-        if 1 <= j <= npoints
+        if 1 <= j <= npoints-1
             grid[j] += (midpoints[k]-x)*ainc
             grid[k] += (x-midpoints[j])*ainc
         end

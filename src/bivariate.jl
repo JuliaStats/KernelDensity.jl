@@ -35,7 +35,7 @@ function tabulate(data::(RealVector, RealVector), midpoints::(Range, Range))
     for (x, y) in zip(xdata,ydata)
         kx, ky = searchsortedfirst(xmid,x), searchsortedfirst(ymid,y)
         jx, jy = kx-1, ky-1
-        if 1 <= jx <= nx && 1 <= jy <= ny
+        if 1 <= jx <= nx-1 && 1 <= jy <= ny-1
             grid[jx,jy] += (xmid[kx]-x)*(ymid[ky]-y)*ainc
             grid[kx,jy] += (x-xmid[jx])*(ymid[ky]-y)*ainc
             grid[jx,ky] += (xmid[kx]-x)*(y-ymid[jy])*ainc

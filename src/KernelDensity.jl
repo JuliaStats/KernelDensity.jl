@@ -1,4 +1,4 @@
-module KDE
+module KernelDensity
 
 using StatsBase
 using Distributions

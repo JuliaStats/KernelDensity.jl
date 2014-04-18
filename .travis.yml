@@ -13,6 +13,6 @@ before_install:
   - sudo apt-get update -qq -y
   - sudo apt-get install libpcre3-dev julia -y
 script:
-  - julia -e 'Pkg.init(); run(`ln -s $(pwd()) $(Pkg.dir("KDE"))`); Pkg.pin("KDE"); Pkg.resolve()'
-  - julia -e 'using KDE; @assert isdefined(:KDE); @assert typeof(KDE) === Module'
+  - julia -e 'Pkg.init(); run(`ln -s $(pwd()) $(Pkg.dir("KernelDensity"))`); Pkg.pin("KernelDensity"); Pkg.resolve()'
+  - julia -e 'using KernelDensity; @assert isdefined(:KernelDensity); @assert typeof(KernelDensity) === Module'
   - julia ./runtests.jl

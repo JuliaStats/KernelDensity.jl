@@ -1,8 +1,8 @@
 using Base.Test
 using Distributions
-using KDE
+using KernelDensity
 
-import KDE: kernel_dist, default_bandwidth, kde_boundary, kde_range, tabulate
+import KernelDensity: kernel_dist, default_bandwidth, kde_boundary, kde_range, tabulate
 
 for D in [Normal,Uniform,Logistic]
     d = kernel_dist(D,0.5)

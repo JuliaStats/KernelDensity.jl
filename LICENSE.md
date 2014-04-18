@@ -1,4 +1,4 @@
-The KDE.jl package is licensed under the MIT "Expat" License:
+The KernelDensity.jl package is licensed under the MIT "Expat" License:
 
 > Copyright (c) 2014: Simon Byrne.
 >

@@ -54,3 +54,13 @@ kde(datamatrix)
 ```
 Similarly, the optional arguments all now take tuple arguments:
 e.g. `boundary` now takes a tuple of tuples `((xlo,xhi),(ylo,yhi))`.
+
+## Plotting
+
+The [Winston.jl](https://github.com/nolta/Winston.jl) plotting package is currently
+supported. See
+[this notebook](http://nbviewer.ipython.org/github/JuliaStats/KernelDensity.jl/blob/master/examples/kde.ipynb)
+for an example.
+
+We plan to include support for other plotting packages: please file an issue
+if your favourite one is not yet available.

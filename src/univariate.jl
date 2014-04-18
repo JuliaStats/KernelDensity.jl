@@ -13,7 +13,7 @@ kernel_dist{D}(::Type{D},w::Real) = (s = w/std(D(0.0,1.0)); D(0.0,s))
 
 
 # Silverman's rule of thumb for KDE bandwidth selection
-function default_bandwidth(data::Vector{Float64}, alpha::Float64 = 0.9)
+function default_bandwidth(data::RealVector, alpha::Float64 = 0.9)
     # Determine length of data
     ndata = length(data)
     ndata <= 1 && return alpha

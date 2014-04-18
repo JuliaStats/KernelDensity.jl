@@ -83,7 +83,7 @@ end
 function kde(data::(RealVector, RealVector), dist::BivariateDistribution;
              boundary::((Real,Real),(Real,Real)) = (kde_boundary(data[1],std(dist[1])),
                                                      kde_boundary(data[2],std(dist[2]))),
-             npoints::(Int,Int)=(128,128))
+             npoints::(Int,Int)=(256,256))
 
     xmid = kde_range(boundary[1],npoints[1])
     ymid = kde_range(boundary[2],npoints[2])
@@ -103,7 +103,7 @@ function kde(data::(RealVector, RealVector);
              kernel=Normal,
              boundary::((Real,Real),(Real,Real)) = (kde_boundary(data[1],bandwidth[1]),
                                                      kde_boundary(data[2],bandwidth[2])),
-             npoints::(Int,Int)=(128,128))
+             npoints::(Int,Int)=(256,256))
 
     dist = kernel_dist(kernel,bandwidth)
     xmid = kde_range(boundary[1],npoints[1])

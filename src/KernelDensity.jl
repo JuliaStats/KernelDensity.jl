@@ -22,5 +22,7 @@ macro glue(pkg)
 end
 
 @glue Winston
+@glue PyPlot
 
 end # module
+

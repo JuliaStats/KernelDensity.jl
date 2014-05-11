@@ -57,10 +57,11 @@ e.g. `boundary` now takes a tuple of tuples `((xlo,xhi),(ylo,yhi))`.
 
 ## Plotting
 
-The [Winston.jl](https://github.com/nolta/Winston.jl) plotting package is currently
-supported. See
-[this notebook](http://nbviewer.ipython.org/github/JuliaStats/KernelDensity.jl/blob/master/examples/kde.ipynb)
-for an example.
+The [Winston.jl](https://github.com/nolta/Winston.jl) and
+[PyPlot.jl](https://github.com/stevengj/PyPlot.jl) plotting packages are
+currently supported. See the ijulia notebooks:
+* [Winston](http://nbviewer.ipython.org/github/JuliaStats/KernelDensity.jl/blob/master/examples/Winston.ipynb)
+* [PyPlot](http://nbviewer.ipython.org/github/JuliaStats/KernelDensity.jl/blob/master/examples/PyPlot.ipynb)
 
 We plan to include support for other plotting packages: please file an issue
 if your favourite one is not yet available.

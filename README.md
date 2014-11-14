@@ -17,7 +17,7 @@ will construct a `UnivariateKDE` object from the real vector `data`. The optiona
   fourier transforms used internally, there should be sufficient spacing to
   prevent wrap-around at the boundaries.
 * `npoints`: the number of interpolation points to use. The function uses
-  fast fourier transforms (FFTs) internally, so for optimal efficiency this
+  fast Fourier transforms (FFTs) internally, so for optimal efficiency this
   should be a power of 2 (default = 2048).
 * `kernel`: the distributional family to use as the kernel (default =
   `Normal`). To add your own kernel, extend the internal `kernel_dist` function.

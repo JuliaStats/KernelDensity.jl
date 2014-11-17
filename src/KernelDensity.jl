@@ -2,6 +2,7 @@ module KernelDensity
 
 using StatsBase
 using Distributions
+using Optim
 
 import Base: conv
 import StatsBase: RealVector, RealMatrix

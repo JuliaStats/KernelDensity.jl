@@ -167,10 +167,11 @@ end
 #Silverman's book use the special case of gaussian kernel. Here the method is generalized to any symmetric kernel
 function lscv(bandwidth::Real, Yl2::RealVector, kernel::DataType, c::Real, ba::Real, n::Int,M::Int)
     dist = kernel_dist(kernel,bandwidth)
-    zeta_star = zeros(length(Yl2))
-    for j = 1:length(Yl2)
+    zeta_star = zeros(length(Yl2)-1)
+    #M is even, length(Yl2) = M/2+1 and Yl2 =[y[l]^2 for l=0 :1: M/2]
+    for j = 1:length(Yl2)-1
         ksl = real(cf(dist,j*c))
-        zeta_star[j] = Yl2[j] * (ksl * ksl - 2 * ksl)
+        zeta_star[j] = Yl2[j+1] * (ksl * ksl - 2 * ksl)
     end
     #Correct the error in silverman's book
     #∫ (cf^2 -2cf)u(s)²ds <- ∑(cf^2 - 2cf)*Yl2*ba²/2pi * c

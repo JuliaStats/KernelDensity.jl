@@ -2,12 +2,13 @@ module KernelDensity
 
 using StatsBase
 using Distributions
+using Optim
 
 import Base: conv
 import StatsBase: RealVector, RealMatrix
 import Distributions: twoπ
 
-export kde, UnivariateKDE, BivariateKDE
+export kde, UnivariateKDE, BivariateKDE, bandwidth_lscv
 
 include("univariate.jl")
 include("bivariate.jl")

@@ -172,7 +172,7 @@ function kde_lscv(data::RealVector, midpoints::Range;
             ks = real(cf(dist, j*c))
             ψ += ft2[j+1]*(ks-2.0)*ks
         end
-        ψ*step(k.x) + pdf(dist,0.0)/ndata
+        ψ*step(k.x)/K + pdf(dist,0.0)/ndata
     end
 
     dist = kernel_dist(kernel, opt.minimum)

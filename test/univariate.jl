@@ -47,5 +47,11 @@ for X in ([0.0], [0.0,0.0], [0.0,0.5], [-0.5:0.1:0.5])
         @test all(k4.density .>= 0.0)
         @test_approx_eq sum(k4.density)*step(k4.x) 1.0
 
+        k5 = kde_lscv(X)
+        @test isa(k5,UnivariateKDE)
+        @test length(k5.density) == length(k5.x)
+        @test all(k5.density .>= 0.0)
+        @test_approx_eq sum(k5.density)*step(k5.x) 1.0
+
     end
 end

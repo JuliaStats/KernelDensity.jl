@@ -145,35 +145,57 @@ function kde(data::RealVector; bandwidth=default_bandwidth(data), kernel=Normal,
     kde(data,dist;boundary=boundary,npoints=npoints)
 end
 
-#change the M to some larger value to get better precision of lscv
-function bandwidth_lscv(data::RealVector; kernel::DataType=Normal, M=1024)
-    n=length(data)
-    h0=default_bandwidth(data)
-    hlb = h0/sqrt(n)
-    hub = sqrt(n)*h0
-    xlb, xub = extrema(data)
-    midpoints = kde_range((xlb-4*h0, xub+4*h0), M)
+# Select bandwidth using least-squares cross validation, from:
+#   Density Estimation for Statistics and Data Analysis
+#   B. W. Silverman (1986)
+#   sections 3.4.3 (pp. 48-52) and 3.5 (pp. 61-66)
 
+function kde_lscv(data::RealVector, midpoints::Range;
+                  kernel=Normal,
+                  bandwidth_range::(Real,Real)=(h=default_bandwidth(data); (0.25*h,1.5*h)))
+
+    ndata = length(data)
     k = tabulate(data, midpoints)
-    # the ft here is M/ba*sqrt(2pi) * u(s), it is M times the Yl in Silverman's book
-    Yl2 = abs2(rfft(k.density)/M)
 
-    ba = step(k.x)*M # the range b -a
-    c = -twoπ/ba
+    # the ft here is K/ba*sqrt(2pi) * u(s), it is K times the Yl in Silverman's book
+    K = length(k.density)
+    ft = rfft(k.density)
 
-    return Optim.optimize(h -> lscv(h, Yl2, kernel, c, ba, n,M), hlb, hub).minimum
+    ft2 = abs2(ft)
+    c = -twoπ/(step(k.x)*K)
+    hlb, hub = bandwidth_range
+
+    opt = Optim.optimize(hlb, hub) do h
+        dist = kernel_dist(kernel, h)
+        ψ = 0.0
+        for j = 1:length(ft2)-1
+            ks = real(cf(dist, j*c))
+            ψ += ft2[j+1]*(ks-2.0)*ks
+        end
+        ψ*step(k.x) + pdf(dist,0.0)/ndata
+    end
+
+    dist = kernel_dist(kernel, opt.minimum)
+    for j = 0:length(ft)-1
+        ft[j+1] *= cf(dist, j*c)
+    end
+
+    dens = irfft(ft, K)
+    # fix rounding error.
+    for i = 1:K
+        dens[i] = max(0.0,dens[i])
+    end
+
+    # Invert the Fourier transform to get the KDE
+    UnivariateKDE(k.x, dens)
 end
 
-#Silverman's book use the special case of gaussian kernel. Here the method is generalized to any symmetric kernel
-function lscv(bandwidth::Real, Yl2::RealVector, kernel::DataType, c::Real, ba::Real, n::Int,M::Int)
-    dist = kernel_dist(kernel,bandwidth)
-    zeta_star = zeros(length(Yl2)-1)
-    #M is even, length(Yl2) = M/2+1 and Yl2 =[y[l]^2 for l=0 :1: M/2]
-    for j = 1:length(Yl2)-1
-        ksl = real(cf(dist,j*c))
-        zeta_star[j] = Yl2[j+1] * (ksl * ksl - 2 * ksl)
-    end
-    #Correct the error in silverman's book
-    #∫ (cf^2 -2cf)u(s)²ds <- ∑(cf^2 - 2cf)*Yl2*ba²/2pi * c
-    sum(zeta_star) * abs(c)*ba*ba/(2*pi) + pdf(dist, 0.0)/n
+function kde_lscv(data::RealVector;
+                  boundary::(Real,Real)=kde_boundary(data,default_bandwidth(data)),
+                  npoints::Int=2048,
+                  kernel=Normal,
+                  bandwidth_range::(Real,Real)=(h=default_bandwidth(data); (0.25*h,1.5*h)))
+
+    midpoints = kde_range(boundary,npoints)
+    kde_lscv(data,midpoints; kernel=kernel, bandwidth_range=bandwidth_range)
 end

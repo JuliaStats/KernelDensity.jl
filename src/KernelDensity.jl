@@ -8,7 +8,7 @@ import Base: conv
 import StatsBase: RealVector, RealMatrix
 import Distributions: twoπ
 
-export kde, UnivariateKDE, BivariateKDE, bandwidth_lscv
+export kde, kde_lscv, UnivariateKDE, BivariateKDE
 
 include("univariate.jl")
 include("bivariate.jl")

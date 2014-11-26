@@ -1,5 +1,5 @@
 # Store both grid and density for KDE over the real line
-immutable UnivariateKDE{R<:Range}
+type UnivariateKDE{R<:Range}
     x::R
     density::Vector{Float64}
 end

@@ -3,15 +3,17 @@ module KernelDensity
 using StatsBase
 using Distributions
 using Optim
+using Grid
 
 import Base: conv
 import StatsBase: RealVector, RealMatrix
-import Distributions: twoπ
+import Distributions: twoπ, pdf
 
-export kde, kde_lscv, UnivariateKDE, BivariateKDE
+export kde, kde_lscv, UnivariateKDE, BivariateKDE, InterpKDE, pdf
 
 include("univariate.jl")
 include("bivariate.jl")
+include("interp.jl")
 
 macro glue(pkg)
     path = joinpath(dirname(Base.source_path(nothing)),"glue",string(pkg,".jl"))

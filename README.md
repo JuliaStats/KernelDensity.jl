@@ -9,20 +9,34 @@ Kernel density estimators for julia.
 
 ### Univariate
 The main accessor function is `kde`:
+
 ```
 kde(data)
 ```
-will construct a `UnivariateKDE` object from the real vector `data`. The optional keyword arguments are
+
+will construct a `UnivariateKDE` object from the real vector `data`. The
+optional keyword arguments are
 * `boundary`: the lower and upper limits of the kde as a tuple. Due to the
   fourier transforms used internally, there should be sufficient spacing to
   prevent wrap-around at the boundaries.
 * `npoints`: the number of interpolation points to use. The function uses
   fast Fourier transforms (FFTs) internally, so for optimal efficiency this
   should be a power of 2 (default = 2048).
-* `kernel`: the distributional family to use as the kernel (default =
-  `Normal`). To add your own kernel, extend the internal `kernel_dist` function.
+* `kernel`: the distributional family from
+  [Distributions.jl](https://github.com/JuliaStats/Distributions.jl) to use as
+  the kernel (default = `Normal`). To add your own kernel, extend the internal
+  `kernel_dist` function.
 * `bandwidth`: the bandwidth of the kernel. Default is to use Silverman's
   rule.
+
+A related function
+
+``` kde_lscv(data) ```
+
+will construct a `UnivariateKDE` object, with the bandwidth selected by
+least-squares cross validation. It accepts the above keyword arguments, except
+`bandwidth`.
+
 
 There are also some slightly more advanced interfaces:
 ```
@@ -55,6 +69,35 @@ kde(datamatrix)
 ```
 Similarly, the optional arguments all now take tuple arguments:
 e.g. `boundary` now takes a tuple of tuples `((xlo,xhi),(ylo,yhi))`.
+
+### Interpolation
+
+The KDE objects are stored as gridded density values, with attached
+coordinates. These are typically sufficient for plotting (see below), but
+intermediate values can be interpolated using the
+[Grid.jl](https://github.com/timholy/Grid.jl) package via the `pdf` method
+(extended from Distributions.jl).
+
+```
+pdf(k::UnivariateKDE, x)
+pdf(k::BivariateKDE, x, y)
+```
+
+where `x` and `y` are real numbers or arrays.
+
+If you are making multiple calls to `pdf`, it will be more efficient to
+construct an intermediate `InterpKDE` to store the intermediate `InterpGrid`
+object:
+
+```
+ik = InterpKDE(k)
+pdf(ik, x)
+```
+
+`InterpKDE` can also take additional arguments specifying the
+`BoundaryCondition` (default=`BCnan`) and `InterpType` (default=
+`InterpQuadratic`).
+
 
 ## Plotting
 

@@ -86,7 +86,7 @@ function tabulate(data::RealVector, midpoints::Range)
         end
     end
 
-    # returns an un-convolved KDE    
+    # returns an un-convolved KDE
     UnivariateKDE(midpoints, grid)
 end
 
@@ -126,7 +126,7 @@ end
 
 function kde(data::RealVector, dist::UnivariateDistribution;
              boundary::(Real,Real)=kde_boundary(data,std(dist)), npoints::Int=2048)
-    
+
     midpoints = kde_range(boundary,npoints)
     kde(data,midpoints,dist)
 end

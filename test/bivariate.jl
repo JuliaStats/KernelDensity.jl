@@ -21,10 +21,10 @@ for X in ([0.0], [0.0,0.0], [0.0,0.5], [-0.5:0.1:0.5])
     w = default_bandwidth(X)
     @test w > 0
     lo, hi = kde_boundary(X,w)
-    @test lo < hi    
+    @test lo < hi
     kr = kde_range((lo,hi), 10)
-    @test step(kr) > 0    
-    
+    @test step(kr) > 0
+
     for D in (Normal, )
         k1 = tabulate((X,X),(r,r))
         @test isa(k1,BivariateKDE)
@@ -43,7 +43,7 @@ for X in ([0.0], [0.0,0.0], [0.0,0.5], [-0.5:0.1:0.5])
         @test size(k3.density) == (length(k3.x), length(k3.y))
         @test all(k3.density .>= 0.0)
         @test_approx_eq sum(k3.density)*step(k3.x)*step(k3.y) 1.0
-        
+
         k4 = kde((X,X),(r,r);kernel=D)
         @test isa(k4,BivariateKDE)
         @test size(k4.density) == (length(k4.x), length(k4.y))

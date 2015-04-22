@@ -14,7 +14,7 @@ end
 r = kde_range((-2.0,2.0), 128)
 @test step(r) > 0
 
-for X in ([0.0], [0.0,0.0], [0.0,0.5], [-0.5:0.1:0.5])
+for X in ([0.0], [0.0,0.0], [0.0,0.5], [-0.5:0.1:0.5;])
     w = default_bandwidth(X)
     @test w > 0
     lo, hi = kde_boundary(X,w)

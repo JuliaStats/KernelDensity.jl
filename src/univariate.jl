@@ -58,7 +58,7 @@ function kde_boundary(data::RealVector, bandwidth::Real)
 end
 
 # convert boundary and npoints to Range object
-function kde_range(boundary::(Real,Real), npoints::Int)
+function kde_range(boundary::(@compat Tuple{Real,Real}), npoints::Int)
     lo, hi = boundary
     lo < hi || error("boundary (a,b) must have a < b")
 
@@ -125,7 +125,7 @@ function kde(data::RealVector, midpoints::Range, dist::UnivariateDistribution)
 end
 
 function kde(data::RealVector, dist::UnivariateDistribution;
-             boundary::(Real,Real)=kde_boundary(data,std(dist)), npoints::Int=2048)
+             boundary::(@compat Tuple{Real,Real})=kde_boundary(data,std(dist)), npoints::Int=2048)
 
     midpoints = kde_range(boundary,npoints)
     kde(data,midpoints,dist)
@@ -139,7 +139,7 @@ function kde(data::RealVector, midpoints::Range;
 end
 
 function kde(data::RealVector; bandwidth=default_bandwidth(data), kernel=Normal,
-             npoints::Int=2048, boundary::(Real,Real)=kde_boundary(data,bandwidth))
+             npoints::Int=2048, boundary::(@compat Tuple{Real,Real})=kde_boundary(data,bandwidth))
     bandwidth > 0.0 || error("Bandwidth must be positive")
     dist = kernel_dist(kernel,bandwidth)
     kde(data,dist;boundary=boundary,npoints=npoints)
@@ -152,7 +152,7 @@ end
 
 function kde_lscv(data::RealVector, midpoints::Range;
                   kernel=Normal,
-                  bandwidth_range::(Real,Real)=(h=default_bandwidth(data); (0.25*h,1.5*h)))
+                  bandwidth_range::(@compat Tuple{Real,Real})=(h=default_bandwidth(data); (0.25*h,1.5*h)))
 
     ndata = length(data)
     k = tabulate(data, midpoints)
@@ -191,10 +191,10 @@ function kde_lscv(data::RealVector, midpoints::Range;
 end
 
 function kde_lscv(data::RealVector;
-                  boundary::(Real,Real)=kde_boundary(data,default_bandwidth(data)),
+                  boundary::(@compat Tuple{Real,Real})=kde_boundary(data,default_bandwidth(data)),
                   npoints::Int=2048,
                   kernel=Normal,
-                  bandwidth_range::(Real,Real)=(h=default_bandwidth(data); (0.25*h,1.5*h)))
+                  bandwidth_range::(@compat Tuple{Real,Real})=(h=default_bandwidth(data); (0.25*h,1.5*h)))
 
     midpoints = kde_range(boundary,npoints)
     kde_lscv(data,midpoints; kernel=kernel, bandwidth_range=bandwidth_range)

@@ -4,6 +4,7 @@ using StatsBase
 using Distributions
 using Optim
 using Grid
+using Compat
 
 import Base: conv
 import StatsBase: RealVector, RealMatrix

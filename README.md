@@ -1,7 +1,8 @@
 # KernelDensity.jl
 
 [![Build Status](https://travis-ci.org/JuliaStats/KernelDensity.jl.svg?branch=master)](https://travis-ci.org/JuliaStats/KernelDensity.jl)
-[![KernelDensity](http://pkg.julialang.org/badges/KernelDensity_release.svg)](http://pkg.julialang.org/?pkg=KernelDensity&ver=release)
+[![KernelDensity](http://pkg.julialang.org/badges/KernelDensity_0.3.svg)](http://pkg.julialang.org/?pkg=KernelDensity&ver=0.3)
+[![KernelDensity](http://pkg.julialang.org/badges/KernelDensity_0.4.svg)](http://pkg.julialang.org/?pkg=KernelDensity&ver=0.4)
 
 Kernel density estimators for julia.
 

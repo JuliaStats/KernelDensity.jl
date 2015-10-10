@@ -1,28 +1,11 @@
-language: cpp
-compiler:
-  - clang
+language: julia
+os:
+    - linux
+    - osx
+julia:
+    - 0.3
+    - 0.4
+    - nightly
 notifications:
-  email: false
-env:
-  matrix:
-    - JULIAVERSION="juliareleases"
-    - JULIAVERSION="julianightlies"
-before_install:
-  - sudo add-apt-repository ppa:staticfloat/julia-deps -y
-  - sudo add-apt-repository ppa:staticfloat/${JULIAVERSION} -y
-  - sudo apt-get update -qq -y
-  - sudo apt-get install libpcre3-dev julia -y
-script:
-  - if git --no-pager grep --color -n --full-name ' $' -- .; then
-      echo "Error trailing whitespace found in source file(s)";
-      echo "";
-      echo "This can often be fixed with:";
-      echo "    git rebase --whitespace=fix HEAD~1";
-      echo "or";
-      echo "    git rebase --whitespace=fix master";
-      echo "and then a forced push of the correct branch";
-      exit 1;
-    fi
-  - julia -e 'Pkg.init(); run(`ln -s $(pwd()) $(Pkg.dir("KernelDensity"))`); Pkg.pin("KernelDensity"); Pkg.resolve()'
-  - julia -e 'using KernelDensity; @assert isdefined(:KernelDensity); @assert typeof(KernelDensity) === Module'
-  - julia test/runtests.jl
+    email: false
+sudo: false

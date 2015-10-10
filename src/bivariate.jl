@@ -79,7 +79,7 @@ function conv(k::BivariateKDE, dist::(@compat Tuple{UnivariateDistribution,Univa
     BivariateKDE(k.x, k.y, dens)
 end
 
-typealias BivariateDistribution Union(MultivariateDistribution,(@compat Tuple{UnivariateDistribution,UnivariateDistribution}))
+typealias BivariateDistribution @compat(Union{MultivariateDistribution,Tuple{UnivariateDistribution,UnivariateDistribution}})
 
 function kde(data::(@compat Tuple{RealVector, RealVector}), midpoints::(@compat Tuple{Range, Range}), dist::BivariateDistribution)
     k = tabulate(data,midpoints)

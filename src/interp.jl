@@ -17,3 +17,24 @@ pdf(ik::InterpKDE,x...) = ik.grid[x...]
 
 pdf(k::UnivariateKDE,x) = pdf(InterpKDE(k),x)
 pdf(k::BivariateKDE,x,y) = pdf(InterpKDE(k),x,y)
+
+function rand(k::UnivariateKDE, range, min)
+  while true
+    x = rand() * range + min
+    b = rand()
+    if b <= pdf(k, x)
+      return x
+    end
+  end
+end
+
+function rand(k::BivariateKDE, xrange, xmin, yrange, ymin)
+  while true
+    x = rand() * xrange + xmin
+    y = rand() * yrange + ymin
+    b = rand()
+    if b <= pdf(k, x, y)
+      return (x, y)
+    end
+  end
+end

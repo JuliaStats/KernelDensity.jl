@@ -67,27 +67,31 @@ function kde_range(boundary::(@compat Tuple{Real,Real}), npoints::Int)
 end
 
 # tabulate data for kde
-function tabulate(data::RealVector, midpoints::Range)
-    ndata = length(data)
+function tabulate(data::RealVector, weights::RealVector, midpoints::Range)
     npoints = length(midpoints)
     s = step(midpoints)
 
     # Set up a grid for discretized data
     grid = zeros(Float64, npoints)
-    ainc = 1.0 / (ndata*s*s)
+    ainc = 1.0 / (sum(weights)*s*s)
 
     # weighted discretization (cf. Jones and Lotwick)
     for x in data
         k = searchsortedfirst(midpoints,x)
         j = k-1
         if 1 <= j <= npoints-1
-            grid[j] += (midpoints[k]-x)*ainc
-            grid[k] += (x-midpoints[j])*ainc
+            grid[j] += (midpoints[k]-x)*ainc*weights[i]
+            grid[k] += (x-midpoints[j])*ainc*weights[i]
         end
     end
 
     # returns an un-convolved KDE
     UnivariateKDE(midpoints, grid)
+end
+
+function tabulate(data::RealVector, midpoints::Range)
+    weights = ones(data)
+    tabulate(data, weights, midpoints)
 end
 
 # convolve raw KDE with kernel

@@ -76,7 +76,7 @@ function tabulate(data::RealVector, weights::RealVector, midpoints::Range)
     ainc = 1.0 / (sum(weights)*s*s)
 
     # weighted discretization (cf. Jones and Lotwick)
-    for x in data
+    for (i,x) in enumerate(data)
         k = searchsortedfirst(midpoints,x)
         j = k-1
         if 1 <= j <= npoints-1
@@ -122,31 +122,36 @@ function conv(k::UnivariateKDE, dist::UnivariateDistribution)
     UnivariateKDE(k.x, dens)
 end
 
+function uniformweights(data)
+    n = length(data)
+    fill(1/n, n)
+end
+
 # main kde interface methods
-function kde(data::RealVector, midpoints::Range, dist::UnivariateDistribution)
-    k = tabulate(data, midpoints)
+function kde(data::RealVector, weights::RealVector, midpoints::Range, dist::UnivariateDistribution)
+    k = tabulate(data, weights, midpoints)
     conv(k,dist)
 end
 
 function kde(data::RealVector, dist::UnivariateDistribution;
-             boundary::(@compat Tuple{Real,Real})=kde_boundary(data,std(dist)), npoints::Int=2048)
+             boundary::(@compat Tuple{Real,Real})=kde_boundary(data,std(dist)), npoints::Int=2048, weights=uniformweights(data))
 
     midpoints = kde_range(boundary,npoints)
-    kde(data,midpoints,dist)
+    kde(data,weights,midpoints,dist)
 end
 
 function kde(data::RealVector, midpoints::Range;
-            bandwidth=default_bandwidth(data), kernel=Normal)
+            bandwidth=default_bandwidth(data), kernel=Normal, weights=uniformweights(data))
     bandwidth > 0.0 || error("Bandwidth must be positive")
     dist = kernel_dist(kernel,bandwidth)
-    kde(data,midpoints,dist)
+    kde(data,weights,midpoints,dist)
 end
 
 function kde(data::RealVector; bandwidth=default_bandwidth(data), kernel=Normal,
-             npoints::Int=2048, boundary::(@compat Tuple{Real,Real})=kde_boundary(data,bandwidth))
+             npoints::Int=2048, boundary::(@compat Tuple{Real,Real})=kde_boundary(data,bandwidth), weights=uniformweights(data))
     bandwidth > 0.0 || error("Bandwidth must be positive")
     dist = kernel_dist(kernel,bandwidth)
-    kde(data,dist;boundary=boundary,npoints=npoints)
+    kde(data,dist;boundary=boundary,npoints=npoints,weights=weights)
 end
 
 # Select bandwidth using least-squares cross validation, from:

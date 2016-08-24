@@ -1,5 +1,5 @@
 # Store both grid and density for KDE over R2
-type BivariateKDE{Rx<:Range,Ry<:Range}
+type BivariateKDE{Rx<:Range,Ry<:Range} <: AbstractKDE
     x::Rx
     y::Ry
     density::Matrix{Float64}

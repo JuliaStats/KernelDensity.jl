@@ -1,6 +1,7 @@
 tests = [
          "univariate",
          "bivariate",
+         "interp",
          ]
 
 println("Running tests:")

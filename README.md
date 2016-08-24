@@ -2,7 +2,6 @@
 
 [![Build Status](https://travis-ci.org/JuliaStats/KernelDensity.jl.svg?branch=master)](https://travis-ci.org/JuliaStats/KernelDensity.jl)
 [![Coverage Status](https://coveralls.io/repos/github/JuliaStats/KernelDensity.jl/badge.svg)](https://coveralls.io/github/JuliaStats/KernelDensity.jl)
-[![KernelDensity](http://pkg.julialang.org/badges/KernelDensity_0.3.svg)](http://pkg.julialang.org/?pkg=KernelDensity&ver=0.3)
 [![KernelDensity](http://pkg.julialang.org/badges/KernelDensity_0.4.svg)](http://pkg.julialang.org/?pkg=KernelDensity&ver=0.4)
 [![KernelDensity](http://pkg.julialang.org/badges/KernelDensity_0.5.svg)](http://pkg.julialang.org/?pkg=KernelDensity)
 
@@ -78,7 +77,7 @@ e.g. `boundary` now takes a tuple of tuples `((xlo,xhi),(ylo,yhi))`.
 The KDE objects are stored as gridded density values, with attached
 coordinates. These are typically sufficient for plotting (see below), but
 intermediate values can be interpolated using the
-[Grid.jl](https://github.com/timholy/Grid.jl) package via the `pdf` method
+[Interpolations.jl](https://github.com/tlycken/Interpolations.jl) package via the `pdf` method
 (extended from Distributions.jl).
 
 ```
@@ -89,15 +88,12 @@ pdf(k::BivariateKDE, x, y)
 where `x` and `y` are real numbers or arrays.
 
 If you are making multiple calls to `pdf`, it will be more efficient to
-construct an intermediate `InterpKDE` to store the intermediate `InterpGrid`
-object:
+construct an intermediate `InterpKDE` to store the interpolation structure:
 
 ```
 ik = InterpKDE(k)
 pdf(ik, x)
 ```
 
-`InterpKDE` can also take additional arguments specifying the
-`BoundaryCondition` (default=`BCnan`) and `InterpType` (default=
-`InterpQuadratic`).
+`InterpKDE` will pass any extra arguments to `interpolate`.
 

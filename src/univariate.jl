@@ -1,5 +1,5 @@
 # Store both grid and density for KDE over the real line
-type UnivariateKDE{R<:Range}
+type UnivariateKDE{R<:Range} <: AbstractKDE
     x::R
     density::Vector{Float64}
 end

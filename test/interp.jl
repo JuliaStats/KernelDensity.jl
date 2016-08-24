@@ -1,6 +1,5 @@
 using Base.Test
 using KernelDensity
-using Grid
 
 X = randn(100)
 Y = randn(100)

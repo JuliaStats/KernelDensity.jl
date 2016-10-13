@@ -24,7 +24,7 @@ function default_bandwidth(data::(@compat Tuple{RealVector,RealVector}))
 end
 
 # tabulate data for kde
-function tabulate(data::(@compat Tuple{RealVector, RealVector}), weights::Weights, midpoints::(@compat Tuple{Range, Range}))
+function tabulate(data::(@compat Tuple{RealVector, RealVector}), midpoints::(@compat Tuple{Range, Range}), weights::Weights = default_weights(data))
     xdata, ydata = data
     ndata = length(xdata)
     length(ydata) == ndata || error("data vectors must be of same length")
@@ -53,10 +53,6 @@ function tabulate(data::(@compat Tuple{RealVector, RealVector}), weights::Weight
 
     # returns an un-convolved KDE
     BivariateKDE(xmid, ymid, grid)
-end
-
-function tabulate(data::(@compat Tuple{RealVector, RealVector}), midpoints::(@compat Tuple{Range, Range}))
-    tabulate(data, default_weights(data), midpoints)
 end
 
 # convolution with product distribution of two univariates distributions
@@ -90,7 +86,7 @@ typealias BivariateDistribution @compat(Union{MultivariateDistribution,Tuple{Uni
 default_weights(data::(@compat Tuple{RealVector, RealVector})) = UniformWeights(length(data[1]))
 
 function kde(data::(@compat Tuple{RealVector, RealVector}), weights::Weights, midpoints::(@compat Tuple{Range, Range}), dist::BivariateDistribution)
-    k = tabulate(data, weights, midpoints)
+    k = tabulate(data, midpoints, weights)
     conv(k,dist)
 end
 

@@ -37,6 +37,10 @@ function default_bandwidth(data::RealVector, alpha::Float64 = 0.9)
     return alpha * width * ndata^(-0.2)
 end
 
+function default_weights(data::RealVector)
+    UniformWeights(length(data))
+end
+
 
 # Roughly based on:
 #   B. W. Silverman (1982) "Algorithm AS 176: Kernel Density Estimation Using
@@ -79,7 +83,7 @@ typealias Weights Union{UniformWeights, RealVector, WeightVec}
 
 
 # tabulate data for kde
-function tabulate(data::RealVector, weights::Weights, midpoints::Range)
+function tabulate(data::RealVector, midpoints::Range, weights::Weights=default_weights(data))
     npoints = length(midpoints)
     s = step(midpoints)
 
@@ -99,10 +103,6 @@ function tabulate(data::RealVector, weights::Weights, midpoints::Range)
 
     # returns an un-convolved KDE
     UnivariateKDE(midpoints, grid)
-end
-
-function tabulate(data::RealVector, midpoints::Range)
-    tabulate(data, UniformWeights(length(data)), midpoints)
 end
 
 # convolve raw KDE with kernel
@@ -135,26 +135,26 @@ end
 
 # main kde interface methods
 function kde(data::RealVector, weights::Weights, midpoints::Range, dist::UnivariateDistribution)
-    k = tabulate(data, weights, midpoints)
+    k = tabulate(data, midpoints, weights)
     conv(k,dist)
 end
 
 function kde(data::RealVector, dist::UnivariateDistribution;
-             boundary::(@compat Tuple{Real,Real})=kde_boundary(data,std(dist)), npoints::Int=2048, weights=UniformWeights(length(data)))
+             boundary::(@compat Tuple{Real,Real})=kde_boundary(data,std(dist)), npoints::Int=2048, weights=default_weights(data))
 
     midpoints = kde_range(boundary,npoints)
     kde(data,weights,midpoints,dist)
 end
 
 function kde(data::RealVector, midpoints::Range;
-            bandwidth=default_bandwidth(data), kernel=Normal, weights=UniformWeights(length(data)))
+             bandwidth=default_bandwidth(data), kernel=Normal, weights=default_weights(data))
     bandwidth > 0.0 || error("Bandwidth must be positive")
     dist = kernel_dist(kernel,bandwidth)
     kde(data,weights,midpoints,dist)
 end
 
 function kde(data::RealVector; bandwidth=default_bandwidth(data), kernel=Normal,
-             npoints::Int=2048, boundary::(@compat Tuple{Real,Real})=kde_boundary(data,bandwidth), weights=UniformWeights(length(data)))
+             npoints::Int=2048, boundary::(@compat Tuple{Real,Real})=kde_boundary(data,bandwidth), weights=default_weights(data))
     bandwidth > 0.0 || error("Bandwidth must be positive")
     dist = kernel_dist(kernel,bandwidth)
     kde(data,dist;boundary=boundary,npoints=npoints,weights=weights)
@@ -167,10 +167,11 @@ end
 
 function kde_lscv(data::RealVector, midpoints::Range;
                   kernel=Normal,
-                  bandwidth_range::(@compat Tuple{Real,Real})=(h=default_bandwidth(data); (0.25*h,1.5*h)))
+                  bandwidth_range::(@compat Tuple{Real,Real})=(h=default_bandwidth(data); (0.25*h,1.5*h)),
+                  weights=default_weights(data))
 
     ndata = length(data)
-    k = tabulate(data, midpoints)
+    k = tabulate(data, midpoints, weights)
 
     # the ft here is K/ba*sqrt(2pi) * u(s), it is K times the Yl in Silverman's book
     K = length(k.density)
@@ -209,8 +210,9 @@ function kde_lscv(data::RealVector;
                   boundary::(@compat Tuple{Real,Real})=kde_boundary(data,default_bandwidth(data)),
                   npoints::Int=2048,
                   kernel=Normal,
-                  bandwidth_range::(@compat Tuple{Real,Real})=(h=default_bandwidth(data); (0.25*h,1.5*h)))
+                  bandwidth_range::(@compat Tuple{Real,Real})=(h=default_bandwidth(data); (0.25*h,1.5*h)),
+                  weights::Weights = default_weights(data))
 
     midpoints = kde_range(boundary,npoints)
-    kde_lscv(data,midpoints; kernel=kernel, bandwidth_range=bandwidth_range)
+    kde_lscv(data,midpoints; kernel=kernel, bandwidth_range=bandwidth_range, weights=weights)
 end

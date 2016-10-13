@@ -1,9 +1,11 @@
+VERSION >= v"0.4.0-dev+6521" && __precompile__()
+
 module KernelDensity
 
 using StatsBase
 using Distributions
 using Optim
-using Grid
+using Interpolations
 using Compat
 
 import Base: conv
@@ -12,21 +14,11 @@ import Distributions: twoπ, pdf
 
 export kde, kde_lscv, UnivariateKDE, BivariateKDE, InterpKDE, pdf
 
+abstract AbstractKDE
+
 include("univariate.jl")
 include("bivariate.jl")
 include("interp.jl")
-
-macro glue(pkg)
-    path = joinpath(dirname(Base.source_path(nothing)),"glue",string(pkg,".jl"))
-    init = symbol(string(pkg,"_init"))
-    quote
-        $(esc(init))() = include($path)
-        isdefined(Main,$(QuoteNode(pkg))) && $(esc(init))()
-    end
-end
-
-@glue Winston
-@glue PyPlot
 
 end # module
 

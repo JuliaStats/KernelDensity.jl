@@ -1,10 +1,11 @@
 # KernelDensity.jl
 
 [![Build Status](https://travis-ci.org/JuliaStats/KernelDensity.jl.svg?branch=master)](https://travis-ci.org/JuliaStats/KernelDensity.jl)
-[![KernelDensity](http://pkg.julialang.org/badges/KernelDensity_0.3.svg)](http://pkg.julialang.org/?pkg=KernelDensity&ver=0.3)
+[![Coverage Status](https://coveralls.io/repos/github/JuliaStats/KernelDensity.jl/badge.svg)](https://coveralls.io/github/JuliaStats/KernelDensity.jl)
 [![KernelDensity](http://pkg.julialang.org/badges/KernelDensity_0.4.svg)](http://pkg.julialang.org/?pkg=KernelDensity&ver=0.4)
+[![KernelDensity](http://pkg.julialang.org/badges/KernelDensity_0.5.svg)](http://pkg.julialang.org/?pkg=KernelDensity)
 
-Kernel density estimators for julia.
+Kernel density estimators for Julia.
 
 ## Usage
 
@@ -76,7 +77,7 @@ e.g. `boundary` now takes a tuple of tuples `((xlo,xhi),(ylo,yhi))`.
 The KDE objects are stored as gridded density values, with attached
 coordinates. These are typically sufficient for plotting (see below), but
 intermediate values can be interpolated using the
-[Grid.jl](https://github.com/timholy/Grid.jl) package via the `pdf` method
+[Interpolations.jl](https://github.com/tlycken/Interpolations.jl) package via the `pdf` method
 (extended from Distributions.jl).
 
 ```
@@ -87,26 +88,12 @@ pdf(k::BivariateKDE, x, y)
 where `x` and `y` are real numbers or arrays.
 
 If you are making multiple calls to `pdf`, it will be more efficient to
-construct an intermediate `InterpKDE` to store the intermediate `InterpGrid`
-object:
+construct an intermediate `InterpKDE` to store the interpolation structure:
 
 ```
 ik = InterpKDE(k)
 pdf(ik, x)
 ```
 
-`InterpKDE` can also take additional arguments specifying the
-`BoundaryCondition` (default=`BCnan`) and `InterpType` (default=
-`InterpQuadratic`).
+`InterpKDE` will pass any extra arguments to `interpolate`.
 
-
-## Plotting
-
-The [Winston.jl](https://github.com/nolta/Winston.jl) and
-[PyPlot.jl](https://github.com/stevengj/PyPlot.jl) plotting packages are
-currently supported. See the ijulia notebooks:
-* [Winston](http://nbviewer.ipython.org/github/JuliaStats/KernelDensity.jl/blob/master/examples/Winston.ipynb)
-* [PyPlot](http://nbviewer.ipython.org/github/JuliaStats/KernelDensity.jl/blob/master/examples/PyPlot.ipynb)
-
-We plan to include support for other plotting packages: please file an issue
-if your favourite one is not yet available.

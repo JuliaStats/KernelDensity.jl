@@ -66,8 +66,20 @@ function kde_range(boundary::(@compat Tuple{Real,Real}), npoints::Int)
     lo:step:hi
 end
 
+immutable UniformWeights
+    w
+
+    UniformWeights(n) = new(1/n)
+end
+
+Base.sum(x::UniformWeights) = 1.
+Base.getindex(x::UniformWeights, i) = x.w
+
+typealias Weights Union{UniformWeights, RealVector, WeightVec}
+
+
 # tabulate data for kde
-function tabulate(data::RealVector, weights::RealVector, midpoints::Range)
+function tabulate(data::RealVector, weights::Weights, midpoints::Range)
     npoints = length(midpoints)
     s = step(midpoints)
 
@@ -90,8 +102,7 @@ function tabulate(data::RealVector, weights::RealVector, midpoints::Range)
 end
 
 function tabulate(data::RealVector, midpoints::Range)
-    weights = ones(data)
-    tabulate(data, weights, midpoints)
+    tabulate(data, UniformWeights(length(data)), midpoints)
 end
 
 # convolve raw KDE with kernel
@@ -122,33 +133,28 @@ function conv(k::UnivariateKDE, dist::UnivariateDistribution)
     UnivariateKDE(k.x, dens)
 end
 
-function uniformweights(data)
-    n = length(data)
-    fill(1/n, n)
-end
-
 # main kde interface methods
-function kde(data::RealVector, weights::RealVector, midpoints::Range, dist::UnivariateDistribution)
+function kde(data::RealVector, weights::Weights, midpoints::Range, dist::UnivariateDistribution)
     k = tabulate(data, weights, midpoints)
     conv(k,dist)
 end
 
 function kde(data::RealVector, dist::UnivariateDistribution;
-             boundary::(@compat Tuple{Real,Real})=kde_boundary(data,std(dist)), npoints::Int=2048, weights=uniformweights(data))
+             boundary::(@compat Tuple{Real,Real})=kde_boundary(data,std(dist)), npoints::Int=2048, weights=UniformWeights(length(data)))
 
     midpoints = kde_range(boundary,npoints)
     kde(data,weights,midpoints,dist)
 end
 
 function kde(data::RealVector, midpoints::Range;
-            bandwidth=default_bandwidth(data), kernel=Normal, weights=uniformweights(data))
+            bandwidth=default_bandwidth(data), kernel=Normal, weights=UniformWeights(length(data)))
     bandwidth > 0.0 || error("Bandwidth must be positive")
     dist = kernel_dist(kernel,bandwidth)
     kde(data,weights,midpoints,dist)
 end
 
 function kde(data::RealVector; bandwidth=default_bandwidth(data), kernel=Normal,
-             npoints::Int=2048, boundary::(@compat Tuple{Real,Real})=kde_boundary(data,bandwidth), weights=uniformweights(data))
+             npoints::Int=2048, boundary::(@compat Tuple{Real,Real})=kde_boundary(data,bandwidth), weights=UniformWeights(length(data)))
     bandwidth > 0.0 || error("Bandwidth must be positive")
     dist = kernel_dist(kernel,bandwidth)
     kde(data,dist;boundary=boundary,npoints=npoints,weights=weights)

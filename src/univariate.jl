@@ -175,7 +175,7 @@ function kde_lscv(data::RealVector, midpoints::Range;
         ψ*step(k.x)/K + pdf(dist,0.0)/ndata
     end
 
-    dist = kernel_dist(kernel, opt.minimum)
+    dist = kernel_dist(kernel, Optim.minimizer(opt))
     for j = 0:length(ft)-1
         ft[j+1] *= cf(dist, j*c)
     end

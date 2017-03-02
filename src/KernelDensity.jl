@@ -1,4 +1,4 @@
-VERSION >= v"0.4.0-dev+6521" && __precompile__()
+__precompile__()
 
 module KernelDensity
 
@@ -6,7 +6,6 @@ using StatsBase
 using Distributions
 using Optim
 using Interpolations
-using Compat
 
 import Base: conv
 import StatsBase: RealVector, RealMatrix

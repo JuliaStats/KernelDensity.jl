@@ -1,4 +1,4 @@
-import Interpolations: interpolate
+import Interpolations: interpolate, scale
 
 type InterpKDE{K,I} <: AbstractKDE
     kde::K

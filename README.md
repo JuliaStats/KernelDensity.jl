@@ -2,8 +2,9 @@
 
 [![Build Status](https://travis-ci.org/JuliaStats/KernelDensity.jl.svg?branch=master)](https://travis-ci.org/JuliaStats/KernelDensity.jl)
 [![Coverage Status](https://coveralls.io/repos/github/JuliaStats/KernelDensity.jl/badge.svg)](https://coveralls.io/github/JuliaStats/KernelDensity.jl)
-[![KernelDensity](http://pkg.julialang.org/badges/KernelDensity_0.4.svg)](http://pkg.julialang.org/?pkg=KernelDensity&ver=0.4)
+[![KernelDensity](http://pkg.julialang.org/badges/KernelDensity_0.4.svg)](http://pkg.julialang.org/?pkg=KernelDensity)
 [![KernelDensity](http://pkg.julialang.org/badges/KernelDensity_0.5.svg)](http://pkg.julialang.org/?pkg=KernelDensity)
+[![KernelDensity](http://pkg.julialang.org/badges/KernelDensity_0.6.svg)](http://pkg.julialang.org/?pkg=KernelDensity)
 
 Kernel density estimators for Julia.
 

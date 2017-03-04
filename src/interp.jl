@@ -3,7 +3,7 @@ import Interpolations: interpolate
 type InterpKDE{K,I} <: AbstractKDE
     kde::K
     itp::I
-    InterpKDE(kde,itp) = new(kde,itp)
+    @compat InterpKDE{K,I}(kde,itp) = new{K,I}(kde,itp)
 end
 
 

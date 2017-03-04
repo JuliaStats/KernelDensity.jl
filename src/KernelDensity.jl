@@ -2,6 +2,7 @@ __precompile__()
 
 module KernelDensity
 
+using Compat
 using StatsBase
 using Distributions
 using Optim
@@ -13,7 +14,7 @@ import Distributions: twoπ, pdf
 
 export kde, kde_lscv, UnivariateKDE, BivariateKDE, InterpKDE, pdf
 
-abstract AbstractKDE
+@compat abstract type AbstractKDE end
 
 include("univariate.jl")
 include("bivariate.jl")

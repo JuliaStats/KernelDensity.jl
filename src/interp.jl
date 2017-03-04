@@ -1,9 +1,9 @@
-import Interpolations: interpolate
+import Interpolations: interpolate, scale
 
 type InterpKDE{K,I} <: AbstractKDE
     kde::K
     itp::I
-    InterpKDE(kde,itp) = new(kde,itp)
+    @compat (::Type{InterpKDE{K,I}}){K,I}(kde::K, itp::I) = new{K,I}(kde, itp)
 end
 
 

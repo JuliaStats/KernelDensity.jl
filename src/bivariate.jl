@@ -12,9 +12,15 @@ function kernel_dist{Dx<:UnivariateDistribution,Dy<:UnivariateDistribution}(::Ty
     kernel_dist(Dx,w[1]), kernel_dist(Dy,w[2])
 end
 
+if VERSION >= v"0.6.0-dev.2123"
+    const DataTypeOrUnionAll = Union{DataType, UnionAll}
+else
+    const DataTypeOrUnionAll = DataType
+end
+
 # this function provided for backwards compatibility, though it doesn't have the type restrictions
 # to ensure that the given tuple only contains univariate distributions
-function kernel_dist(d::Tuple{DataType, DataType}, w::Tuple{Real,Real})
+function kernel_dist(d::Tuple{DataTypeOrUnionAll, DataTypeOrUnionAll}, w::Tuple{Real,Real})
     kernel_dist(d[1],w[1]), kernel_dist(d[2],w[2])
 end
 
@@ -79,7 +85,7 @@ function conv(k::BivariateKDE, dist::Tuple{UnivariateDistribution,UnivariateDist
     BivariateKDE(k.x, k.y, dens)
 end
 
-typealias BivariateDistribution Union{MultivariateDistribution,Tuple{UnivariateDistribution,UnivariateDistribution}}
+@compat const BivariateDistribution = Union{MultivariateDistribution,Tuple{UnivariateDistribution,UnivariateDistribution}}
 
 function kde(data::Tuple{RealVector, RealVector}, midpoints::Tuple{Range, Range}, dist::BivariateDistribution)
     k = tabulate(data,midpoints)

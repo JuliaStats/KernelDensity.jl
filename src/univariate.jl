@@ -8,7 +8,7 @@ end
 kernel_dist(::Type{Normal},w::Real) = Normal(0.0,w)
 kernel_dist(::Type{Uniform},w::Real) = (s = 1.7320508075688772*w; Uniform(-s,s))
 
-typealias LocationScale Union{Laplace,Logistic,SymTriangularDist}
+@compat const LocationScale = Union{Laplace,Logistic,SymTriangularDist}
 kernel_dist{D}(::Type{D},w::Real) = (s = w/std(D(0.0,1.0)); D(0.0,s))
 
 
@@ -161,7 +161,7 @@ function kde_lscv(data::RealVector, midpoints::Range;
     K = length(k.density)
     ft = rfft(k.density)
 
-    ft2 = abs2(ft)
+    ft2 = @compat(abs2.(ft))
     c = -twoπ/(step(k.x)*K)
     hlb, hub = bandwidth_range
 

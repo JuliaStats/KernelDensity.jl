@@ -95,5 +95,5 @@ ik = InterpKDE(k)
 pdf(ik, x)
 ```
 
-`InterpKDE` will pass any extra arguments to `interpolate`.
-
+`InterpKDE` can take a boundary condition that is passed to `extrapolate`
+and any extra arguments are passed to `interpolate`.

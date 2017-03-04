@@ -1,4 +1,4 @@
-import Interpolations: interpolate
+import Interpolations: interpolate, ExtrapDimSpec
 
 type InterpKDE{K,I} <: AbstractKDE
     kde::K
@@ -7,20 +7,22 @@ type InterpKDE{K,I} <: AbstractKDE
 end
 
 
-function InterpKDE(kde::UnivariateKDE, opts...)
+function InterpKDE(kde::UnivariateKDE, extrap::Union{ExtrapDimSpec, Number}, opts...)
     itp_u = interpolate(kde.density, opts...)
+    itp_u = extrapolate(itp_u, extrap)
     itp = scale(itp_u, kde.x)
     InterpKDE{typeof(kde),typeof(itp)}(kde, itp)
 end
-InterpKDE(kde::UnivariateKDE) = InterpKDE(kde, BSpline(Quadratic(Line())), OnGrid())
+InterpKDE(kde::UnivariateKDE) = InterpKDE(kde, NaN, BSpline(Quadratic(Line())), OnGrid())
 
 
-function InterpKDE(kde::BivariateKDE, opts...)
+function InterpKDE(kde::BivariateKDE, extrap::Union{ExtrapDimSpec, Number}, opts...)
     itp_u = interpolate(kde.density,opts...)
+    itp_u = extrapolate(itp_u, extrap)
     itp = scale(itp_u, kde.x, kde.y)
     InterpKDE{typeof(kde),typeof(itp)}(kde, itp)
 end
-InterpKDE(kde::BivariateKDE) = InterpKDE(kde::BivariateKDE, BSpline(Quadratic(Line())), OnGrid())
+InterpKDE(kde::BivariateKDE) = InterpKDE(kde::BivariateKDE, NaN, BSpline(Quadratic(Line())), OnGrid())
 
 pdf(ik::InterpKDE,x::Real...) = ik.itp[x...]
 pdf(ik::InterpKDE,xs::AbstractVector) = [ik.itp[x] for x in xs]

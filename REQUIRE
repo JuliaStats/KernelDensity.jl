@@ -1,5 +1,5 @@
 julia 0.4
-Compat 0.19.0
+Compat 0.17
 StatsBase
 Distributions
 Optim

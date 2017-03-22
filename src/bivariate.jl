@@ -63,19 +63,25 @@ end
 function conv(k::BivariateKDE, dist::Tuple{UnivariateDistribution,UnivariateDistribution})
     # Transform to Fourier basis
     Kx, Ky = size(k.density)
-    ft = rfft(k.density)
 
     distx, disty = dist
 
     # Convolve fft with characteristic function of kernel
     cx = -twoπ/(step(k.x)*Kx)
     cy = -twoπ/(step(k.y)*Ky)
+
+    ft = rfft(k.density, 1)
+    scale!([cf(distx,i*cx) for i = 0:size(ft,1)-1], ft)
+    dens = irfft(ft, Kx, 1)
+
+    ft = rfft(dens, 2)
     for j = 0:size(ft,2)-1
-        for i = 0:size(ft,1)-1
-            ft[i+1,j+1] *= cf(distx,i*cx)*cf(disty,min(j,Ky-j)*cy)
+        v = cf(disty,min(j,Ky-j)*cy)
+        for i = 1:size(ft,1)
+            ft[i, j+1] *= v
         end
     end
-    dens = irfft(ft, Kx)
+    dens = irfft(ft, Ky, 2)
 
     for i = 1:length(dens)
         dens[i] = max(0.0,dens[i])

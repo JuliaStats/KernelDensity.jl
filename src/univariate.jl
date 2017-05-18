@@ -76,10 +76,6 @@ UniformWeights(n) = UniformWeights{n}()
 
 Base.sum(x::UniformWeights) = 1.
 Base.getindex{N}(x::UniformWeights{N}, i) = 1/N
-Base.length{N}(x::UniformWeights{N}) = N
-values{N}(x::UniformWeights{N}) = fill(x[1], N)
-eltype(x::UniformWeights) = eltype(x[1])
-isempty{N}(x::UniformWeights{N}) = N==0
 
 typealias Weights Union{UniformWeights, RealVector, WeightVec}
 

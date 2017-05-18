@@ -5,26 +5,32 @@ type BivariateKDE{Rx<:Range,Ry<:Range} <: AbstractKDE
     density::Matrix{Float64}
 end
 
-function kernel_dist{D<:UnivariateDistribution}(::Type{D},w::(@compat Tuple{Real,Real}))
+function kernel_dist{D<:UnivariateDistribution}(::Type{D},w::Tuple{Real,Real})
     kernel_dist(D,w[1]), kernel_dist(D,w[2])
 end
-function kernel_dist{Dx<:UnivariateDistribution,Dy<:UnivariateDistribution}(::Type{(@compat Tuple{Dx, Dy})},w::(@compat Tuple{Real,Real}))
+function kernel_dist{Dx<:UnivariateDistribution,Dy<:UnivariateDistribution}(::Type{Tuple{Dx, Dy}},w::Tuple{Real,Real})
     kernel_dist(Dx,w[1]), kernel_dist(Dy,w[2])
+end
+
+if VERSION >= v"0.6.0-dev.2123"
+    const DataTypeOrUnionAll = Union{DataType, UnionAll}
+else
+    const DataTypeOrUnionAll = DataType
 end
 
 # this function provided for backwards compatibility, though it doesn't have the type restrictions
 # to ensure that the given tuple only contains univariate distributions
-function kernel_dist(d::(@compat Tuple{DataType, DataType}),w::(@compat Tuple{Real,Real}))
+function kernel_dist(d::Tuple{DataTypeOrUnionAll, DataTypeOrUnionAll}, w::Tuple{Real,Real})
     kernel_dist(d[1],w[1]), kernel_dist(d[2],w[2])
 end
 
 # TODO: there are probably better choices.
-function default_bandwidth(data::(@compat Tuple{RealVector,RealVector}))
+function default_bandwidth(data::Tuple{RealVector,RealVector})
     default_bandwidth(data[1]), default_bandwidth(data[2])
 end
 
 # tabulate data for kde
-function tabulate(data::(@compat Tuple{RealVector, RealVector}), midpoints::(@compat Tuple{Range, Range}), weights::Weights = default_weights(data))
+function tabulate(data::Tuple{RealVector, RealVector}, midpoints::Tuple{Range, Range}, weights::Weights = default_weights(data))
     xdata, ydata = data
     ndata = length(xdata)
     length(ydata) == ndata || error("data vectors must be of same length")
@@ -56,7 +62,7 @@ function tabulate(data::(@compat Tuple{RealVector, RealVector}), midpoints::(@co
 end
 
 # convolution with product distribution of two univariates distributions
-function conv(k::BivariateKDE, dist::(@compat Tuple{UnivariateDistribution,UnivariateDistribution}) )
+function conv(k::BivariateKDE, dist::Tuple{UnivariateDistribution,UnivariateDistribution})
     # Transform to Fourier basis
     Kx, Ky = size(k.density)
     ft = rfft(k.density)
@@ -81,19 +87,19 @@ function conv(k::BivariateKDE, dist::(@compat Tuple{UnivariateDistribution,Univa
     BivariateKDE(k.x, k.y, dens)
 end
 
-typealias BivariateDistribution @compat(Union{MultivariateDistribution,Tuple{UnivariateDistribution,UnivariateDistribution}})
+const BivariateDistribution = Union{MultivariateDistribution,Tuple{UnivariateDistribution,UnivariateDistribution}}
 
-default_weights(data::(@compat Tuple{RealVector, RealVector})) = UniformWeights(length(data[1]))
+default_weights(data::Tuple{RealVector, RealVector}) = UniformWeights(length(data[1]))
 
-function kde(data::(@compat Tuple{RealVector, RealVector}), weights::Weights, midpoints::(@compat Tuple{Range, Range}), dist::BivariateDistribution)
+function kde(data::Tuple{RealVector, RealVector}, weights::Weights, midpoints::Tuple{Range, Range}, dist::BivariateDistribution)
     k = tabulate(data, midpoints, weights)
     conv(k,dist)
 end
 
-function kde(data::(@compat Tuple{RealVector, RealVector}), dist::BivariateDistribution;
-             boundary::(@compat Tuple{(@compat Tuple{Real,Real}),(@compat Tuple{Real,Real})}) = (kde_boundary(data[1],std(dist[1])),
+function kde(data::Tuple{RealVector, RealVector}, dist::BivariateDistribution;
+             boundary::Tuple{Tuple{Real,Real}, Tuple{Real,Real}} = (kde_boundary(data[1],std(dist[1])),
                                                      kde_boundary(data[2],std(dist[2]))),
-             npoints::(@compat Tuple{Int,Int})=(256,256),
+             npoints::Tuple{Int,Int}=(256,256),
              weights::Weights = default_weights(data))
 
     xmid = kde_range(boundary[1],npoints[1])
@@ -102,19 +108,19 @@ function kde(data::(@compat Tuple{RealVector, RealVector}), dist::BivariateDistr
     kde(data,weights,(xmid,ymid),dist)
 end
 
-function kde(data::(@compat Tuple{RealVector, RealVector}), midpoints::(@compat Tuple{Range, Range});
+function kde(data::Tuple{RealVector, RealVector}, midpoints::Tuple{Range, Range};
              bandwidth=default_bandwidth(data), kernel=Normal, weights::Weights = default_weights(data))
 
     dist = kernel_dist(kernel,bandwidth)
     kde(data,weights,midpoints,dist)
 end
 
-function kde(data::(@compat Tuple{RealVector, RealVector});
+function kde(data::Tuple{RealVector, RealVector};
              bandwidth=default_bandwidth(data),
              kernel=Normal,
-             boundary::(@compat Tuple{(@compat Tuple{Real,Real}),(@compat Tuple{Real,Real})}) = (kde_boundary(data[1],bandwidth[1]),
+             boundary::Tuple{Tuple{Real,Real}, Tuple{Real,Real}} = (kde_boundary(data[1],bandwidth[1]),
                                                      kde_boundary(data[2],bandwidth[2])),
-             npoints::(@compat Tuple{Int,Int})=(256,256),
+             npoints::Tuple{Int,Int}=(256,256),
              weights::Weights = default_weights(data))
 
     dist = kernel_dist(kernel,bandwidth)

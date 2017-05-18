@@ -8,7 +8,7 @@ end
 kernel_dist(::Type{Normal},w::Real) = Normal(0.0,w)
 kernel_dist(::Type{Uniform},w::Real) = (s = 1.7320508075688772*w; Uniform(-s,s))
 
-typealias LocationScale @compat(Union{Laplace,Logistic,SymTriangularDist})
+const LocationScale = Union{Laplace,Logistic,SymTriangularDist}
 kernel_dist{D}(::Type{D},w::Real) = (s = w/std(D(0.0,1.0)); D(0.0,s))
 
 
@@ -62,7 +62,7 @@ function kde_boundary(data::RealVector, bandwidth::Real)
 end
 
 # convert boundary and npoints to Range object
-function kde_range(boundary::(@compat Tuple{Real,Real}), npoints::Int)
+function kde_range(boundary::Tuple{Real,Real}, npoints::Int)
     lo, hi = boundary
     lo < hi || error("boundary (a,b) must have a < b")
 
@@ -142,7 +142,7 @@ function kde(data::RealVector, weights::Weights, midpoints::Range, dist::Univari
 end
 
 function kde(data::RealVector, dist::UnivariateDistribution;
-             boundary::(@compat Tuple{Real,Real})=kde_boundary(data,std(dist)), npoints::Int=2048, weights=default_weights(data))
+             boundary::Tuple{Real,Real}=kde_boundary(data,std(dist)), npoints::Int=2048, weights=default_weights(data))
 
     midpoints = kde_range(boundary,npoints)
     kde(data,weights,midpoints,dist)
@@ -156,7 +156,7 @@ function kde(data::RealVector, midpoints::Range;
 end
 
 function kde(data::RealVector; bandwidth=default_bandwidth(data), kernel=Normal,
-             npoints::Int=2048, boundary::(@compat Tuple{Real,Real})=kde_boundary(data,bandwidth), weights=default_weights(data))
+             npoints::Int=2048, boundary::Tuple{Real,Real}=kde_boundary(data,bandwidth), weights=default_weights(data))
     bandwidth > 0.0 || error("Bandwidth must be positive")
     dist = kernel_dist(kernel,bandwidth)
     kde(data,dist;boundary=boundary,npoints=npoints,weights=weights)
@@ -169,7 +169,7 @@ end
 
 function kde_lscv(data::RealVector, midpoints::Range;
                   kernel=Normal,
-                  bandwidth_range::(@compat Tuple{Real,Real})=(h=default_bandwidth(data); (0.25*h,1.5*h)),
+                  bandwidth_range::Tuple{Real,Real}=(h=default_bandwidth(data); (0.25*h,1.5*h)),
                   weights=default_weights(data))
 
     ndata = length(data)
@@ -179,7 +179,7 @@ function kde_lscv(data::RealVector, midpoints::Range;
     K = length(k.density)
     ft = rfft(k.density)
 
-    ft2 = abs2(ft)
+    ft2 = @compat(abs2.(ft))
     c = -twoπ/(step(k.x)*K)
     hlb, hub = bandwidth_range
 
@@ -193,7 +193,7 @@ function kde_lscv(data::RealVector, midpoints::Range;
         ψ*step(k.x)/K + pdf(dist,0.0)/ndata
     end
 
-    dist = kernel_dist(kernel, opt.minimum)
+    dist = kernel_dist(kernel, Optim.minimizer(opt))
     for j = 0:length(ft)-1
         ft[j+1] *= cf(dist, j*c)
     end
@@ -209,10 +209,10 @@ function kde_lscv(data::RealVector, midpoints::Range;
 end
 
 function kde_lscv(data::RealVector;
-                  boundary::(@compat Tuple{Real,Real})=kde_boundary(data,default_bandwidth(data)),
+                  boundary::Tuple{Real,Real}=kde_boundary(data,default_bandwidth(data)),
                   npoints::Int=2048,
                   kernel=Normal,
-                  bandwidth_range::(@compat Tuple{Real,Real})=(h=default_bandwidth(data); (0.25*h,1.5*h)),
+                  bandwidth_range::Tuple{Real,Real}=(h=default_bandwidth(data); (0.25*h,1.5*h)),
                   weights::Weights = default_weights(data))
 
     midpoints = kde_range(boundary,npoints)

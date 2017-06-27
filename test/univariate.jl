@@ -53,5 +53,11 @@ for X in ([0.0], [0.0,0.0], [0.0,0.5], [-0.5:0.1:0.5;])
         @test all(k5.density .>= 0.0)
         @test sum(k5.density)*step(k5.x) ≈ 1.0
 
+        k6 = kde(X,r;kernel=D, weights=ones(X)/length(X))
+        @test k4.density ≈ k6.density
     end
 end
+
+k1 = kde([0.0, 1.], r, bandwidth=1, weights=[0,1])
+k2 = kde([1.], r, bandwidth=1)
+@test k1.density ≈ k2.density

@@ -1,5 +1,5 @@
 # Store both grid and density for KDE over the real line
-type UnivariateKDE{R<:Range} <: AbstractKDE
+mutable struct UnivariateKDE{R<:Range} <: AbstractKDE
     x::R
     density::Vector{Float64}
 end
@@ -9,7 +9,7 @@ kernel_dist(::Type{Normal},w::Real) = Normal(0.0,w)
 kernel_dist(::Type{Uniform},w::Real) = (s = 1.7320508075688772*w; Uniform(-s,s))
 
 const LocationScale = Union{Laplace,Logistic,SymTriangularDist}
-kernel_dist{D}(::Type{D},w::Real) = (s = w/std(D(0.0,1.0)); D(0.0,s))
+kernel_dist(::Type{D},w::Real) where {D} = (s = w/std(D(0.0,1.0)); D(0.0,s))
 
 
 # Silverman's rule of thumb for KDE bandwidth selection
@@ -70,14 +70,14 @@ function kde_range(boundary::Tuple{Real,Real}, npoints::Int)
     lo:step:hi
 end
 
-immutable UniformWeights{N} end
+struct UniformWeights{N} end
 
 UniformWeights(n) = UniformWeights{n}()
 
 Base.sum(x::UniformWeights) = 1.
-Base.getindex{N}(x::UniformWeights{N}, i) = 1/N
+Base.getindex(x::UniformWeights{N}, i) where {N} = 1/N
 
-typealias Weights Union{UniformWeights, RealVector, WeightVec}
+const Weights = Union{UniformWeights, RealVector, WeightVec}
 
 
 # tabulate data for kde
@@ -175,7 +175,7 @@ function kde_lscv(data::RealVector, midpoints::Range;
     K = length(k.density)
     ft = rfft(k.density)
 
-    ft2 = @compat(abs2.(ft))
+    ft2 = abs2.(ft)
     c = -twoπ/(step(k.x)*K)
     hlb, hub = bandwidth_range
 

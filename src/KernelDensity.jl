@@ -14,7 +14,7 @@ import Distributions: twoπ, pdf
 
 export kde, kde_lscv, UnivariateKDE, BivariateKDE, InterpKDE, pdf
 
-@compat abstract type AbstractKDE end
+abstract type AbstractKDE end
 
 include("univariate.jl")
 include("bivariate.jl")

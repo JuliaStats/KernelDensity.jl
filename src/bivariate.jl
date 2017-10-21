@@ -1,22 +1,18 @@
 # Store both grid and density for KDE over R2
-type BivariateKDE{Rx<:Range,Ry<:Range} <: AbstractKDE
+mutable struct BivariateKDE{Rx<:Range,Ry<:Range} <: AbstractKDE
     x::Rx
     y::Ry
     density::Matrix{Float64}
 end
 
-function kernel_dist{D<:UnivariateDistribution}(::Type{D},w::Tuple{Real,Real})
+function kernel_dist(::Type{D},w::Tuple{Real,Real}) where D<:UnivariateDistribution
     kernel_dist(D,w[1]), kernel_dist(D,w[2])
 end
-function kernel_dist{Dx<:UnivariateDistribution,Dy<:UnivariateDistribution}(::Type{Tuple{Dx, Dy}},w::Tuple{Real,Real})
+function kernel_dist(::Type{Tuple{Dx, Dy}},w::Tuple{Real,Real}) where {Dx<:UnivariateDistribution,Dy<:UnivariateDistribution}
     kernel_dist(Dx,w[1]), kernel_dist(Dy,w[2])
 end
 
-if VERSION >= v"0.6.0-dev.2123"
-    const DataTypeOrUnionAll = Union{DataType, UnionAll}
-else
-    const DataTypeOrUnionAll = DataType
-end
+const DataTypeOrUnionAll = Union{DataType, UnionAll}
 
 # this function provided for backwards compatibility, though it doesn't have the type restrictions
 # to ensure that the given tuple only contains univariate distributions

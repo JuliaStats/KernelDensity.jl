@@ -1,9 +1,9 @@
 import Interpolations: interpolate, scale
 
-type InterpKDE{K,I} <: AbstractKDE
+mutable struct InterpKDE{K,I} <: AbstractKDE
     kde::K
     itp::I
-    @compat (::Type{InterpKDE{K,I}}){K,I}(kde::K, itp::I) = new{K,I}(kde, itp)
+    InterpKDE{K,I}(kde::K, itp::I) where {K,I} = new{K,I}(kde, itp)
 end
 
 

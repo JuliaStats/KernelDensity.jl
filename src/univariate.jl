@@ -77,7 +77,7 @@ UniformWeights(n) = UniformWeights{n}()
 Base.sum(x::UniformWeights) = 1.
 Base.getindex(x::UniformWeights{N}, i) where {N} = 1/N
 
-const Weights = Union{UniformWeights, RealVector, WeightVec}
+const Weights = Union{UniformWeights, RealVector, StatsBase.Weights}
 
 
 # tabulate data for kde

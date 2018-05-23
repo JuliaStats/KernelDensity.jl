@@ -98,7 +98,7 @@ function tabulate(data::RealVector, midpoints::Range, weights::Weights=default_w
 
         if j >= 1
             mid_below = midpoints[j]
-        if
+        else
             @assert j==0
             mid_below = midpoints[1] - s # Imaginary point outside boundry
             j=npoints # Wrap around and allocate this to the top

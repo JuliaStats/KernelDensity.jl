@@ -66,8 +66,7 @@ function kde_range(boundary::Tuple{Real,Real}, npoints::Int)
     lo, hi = boundary
     lo < hi || error("boundary (a,b) must have a < b")
 
-    step = (hi - lo) / (npoints-1)
-    lo:step:hi
+    Compat.range(lo, stop=hi, length=npoints)
 end
 
 struct UniformWeights{N} end

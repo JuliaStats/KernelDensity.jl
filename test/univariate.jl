@@ -13,6 +13,8 @@ end
 
 r = kde_range((-2.0,2.0), 128)
 @test step(r) > 0
+r2 = kde_range((0.12698109160784082, 0.9785547869337731), 256)
+@test length(r2) == 256
 
 for X in ([0.0], [0.0,0.0], [0.0,0.5], [-0.5:0.1:0.5;])
     w = default_bandwidth(X)

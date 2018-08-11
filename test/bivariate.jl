@@ -32,7 +32,7 @@ for X in ([0.0], [0.0,0.0], [0.0,0.5], [-0.5:0.1:0.5;])
         @test all(k1.density .>= 0.0)
         @test sum(k1.density)*step(k1.x)*step(k1.y) ≈ 1.0
 
-        k2 = conv(k1,kernel_dist(Tuple{D,D}, (0.1,0.1)))
+        k2 = KernelDensity.conv(k1,kernel_dist(Tuple{D,D}, (0.1,0.1)))
         @test isa(k2,BivariateKDE)
         @test size(k2.density) == (length(k2.x), length(k2.y))
         @test all(k2.density .>= 0.0)

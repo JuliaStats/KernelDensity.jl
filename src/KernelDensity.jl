@@ -8,7 +8,6 @@ using Distributions
 using Optim
 using Interpolations
 
-import Base: conv
 import StatsBase: RealVector, RealMatrix
 import Distributions: twoπ, pdf
 import FFTW: rfft, irfft

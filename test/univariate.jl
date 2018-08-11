@@ -1,4 +1,4 @@
-using Base.Test
+using Compat.Test
 using Distributions
 using KernelDensity
 

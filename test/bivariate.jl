@@ -61,6 +61,6 @@ for X in ([0.0], [0.0,0.0], [0.0,0.5], [-0.5:0.1:0.5;])
     end
 end
 
-k1 = kde([0.0 0.0; 1.0 1.0], (r,r), bandwidth=(1,1), weights=[0,1])
-k2 = kde([1.0 1.0], (r,r), bandwidth=(1,1))
-@test k1.density ≈ k2.density
+k11 = kde([0.0 0.0; 1.0 1.0], (r,r), bandwidth=(1,1), weights=[0,1])
+k12 = kde([1.0 1.0], (r,r), bandwidth=(1,1))
+@test k11.density ≈ k12.density

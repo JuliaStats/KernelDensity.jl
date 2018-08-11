@@ -1,5 +1,3 @@
-VERSION < v"0.7" && __precompile__()
-
 module KernelDensity
 
 using StatsBase

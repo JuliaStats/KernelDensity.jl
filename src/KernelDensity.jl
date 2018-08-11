@@ -11,6 +11,7 @@ using Interpolations
 import Base: conv
 import StatsBase: RealVector, RealMatrix
 import Distributions: twoπ, pdf
+import FFTW: rfft, irfft
 
 export kde, kde_lscv, UnivariateKDE, BivariateKDE, InterpKDE, pdf
 
@@ -21,4 +22,3 @@ include("bivariate.jl")
 include("interp.jl")
 
 end # module
-

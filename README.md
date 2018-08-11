@@ -41,7 +41,7 @@ least-squares cross validation. It accepts the above keyword arguments, except
 
 There are also some slightly more advanced interfaces:
 ```
-kde(data, midpoints::Range)
+kde(data, midpoints::R) where R<:AbstractRange
 ```
 allows specifying the internal grid to use. Optional keyword arguments are
 `kernel` and `bandwidth`.
@@ -53,7 +53,7 @@ allows specifying the exact distribution to use as the kernel. Optional
 keyword arguments are `boundary` and `npoints`.
 
 ```
-kde(data, midpoints::Range, dist::Distribution)
+kde(data, midpoints::R, dist::Distribution) where R<:AbstractRange
 ```
 allows specifying both the distribution and grid.
 
@@ -95,4 +95,3 @@ pdf(ik, x)
 ```
 
 `InterpKDE` will pass any extra arguments to `interpolate`.
-

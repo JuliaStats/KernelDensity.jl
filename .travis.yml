@@ -3,8 +3,13 @@ os:
   - linux
   - osx
 julia:
-  - 0.6
+  - 0.7
+  - 1.0
   - nightly
+matrix:
+  allow_failures:
+    - julia: 1.0
+    - julia: nightly
 notifications:
   email: false
 # Uncomment the following lines to override the default test script
@@ -12,4 +17,4 @@ notifications:
 #  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 #  - julia -e 'Pkg.clone(pwd()); Pkg.build("KernelDensity"); Pkg.test("KernelDensity"; coverage=true)'
 after_success:
-  - julia -e 'cd(Pkg.dir("KernelDensity")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
+  - julia -e 'import Pkg, KernelDensity; cd(joinpath(dirname(pathof(KernelDensity)), "..")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'

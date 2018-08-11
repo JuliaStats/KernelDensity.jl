@@ -1,4 +1,4 @@
-using Base.Test
+using Test
 using KernelDensity
 
 X = randn(100)

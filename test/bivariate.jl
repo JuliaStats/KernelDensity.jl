@@ -1,4 +1,4 @@
-using Base.Test
+using Test
 using Distributions
 using KernelDensity
 
@@ -32,7 +32,7 @@ for X in ([0.0], [0.0,0.0], [0.0,0.5], [-0.5:0.1:0.5;])
         @test all(k1.density .>= 0.0)
         @test sum(k1.density)*step(k1.x)*step(k1.y) ≈ 1.0
 
-        k2 = conv(k1,kernel_dist(Tuple{D,D}, (0.1,0.1)))
+        k2 = KernelDensity.conv(k1,kernel_dist(Tuple{D,D}, (0.1,0.1)))
         @test isa(k2,BivariateKDE)
         @test size(k2.density) == (length(k2.x), length(k2.y))
         @test all(k2.density .>= 0.0)
@@ -56,11 +56,11 @@ for X in ([0.0], [0.0,0.0], [0.0,0.5], [-0.5:0.1:0.5;])
         @test all(k5.density .>= 0.0)
         @test sum(k5.density)*step(k5.x)*step(k5.y) ≈ 1.0
 
-        k6 = kde([X X],(r,r);kernel=D, weights=ones(X)/length(X))
+        k6 = kde([X X],(r,r);kernel=D, weights=fill(1.0/length(X),length(X)))
         @test k4.density ≈ k6.density
     end
 end
 
-k1 = kde([0.0 0.0; 1.0 1.0], (r,r), bandwidth=(1,1), weights=[0,1])
-k2 = kde([1.0 1.0], (r,r), bandwidth=(1,1))
-@test k1.density ≈ k2.density
+k11 = kde([0.0 0.0; 1.0 1.0], (r,r), bandwidth=(1,1), weights=[0,1])
+k12 = kde([1.0 1.0], (r,r), bandwidth=(1,1))
+@test k11.density ≈ k12.density

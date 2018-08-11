@@ -1,5 +1,5 @@
 # Store both grid and density for KDE over R2
-mutable struct BivariateKDE{Rx<:Range,Ry<:Range} <: AbstractKDE
+mutable struct BivariateKDE{Rx<:AbstractRange,Ry<:AbstractRange} <: AbstractKDE
     x::Rx
     y::Ry
     density::Matrix{Float64}
@@ -26,7 +26,8 @@ function default_bandwidth(data::Tuple{RealVector,RealVector})
 end
 
 # tabulate data for kde
-function tabulate(data::Tuple{RealVector, RealVector}, midpoints::Tuple{Range, Range}, weights::Weights = default_weights(data))
+function tabulate(data::Tuple{RealVector, RealVector}, midpoints::Tuple{Rx, Ry},
+        weights::Weights = default_weights(data)) where {Rx<:AbstractRange,Ry<:AbstractRange}
     xdata, ydata = data
     ndata = length(xdata)
     length(ydata) == ndata || error("data vectors must be of same length")
@@ -87,7 +88,8 @@ const BivariateDistribution = Union{MultivariateDistribution,Tuple{UnivariateDis
 
 default_weights(data::Tuple{RealVector, RealVector}) = UniformWeights(length(data[1]))
 
-function kde(data::Tuple{RealVector, RealVector}, weights::Weights, midpoints::Tuple{Range, Range}, dist::BivariateDistribution)
+function kde(data::Tuple{RealVector, RealVector}, weights::Weights, midpoints::Tuple{Rx, Ry},
+        dist::BivariateDistribution) where {Rx<:AbstractRange,Ry<:AbstractRange}
     k = tabulate(data, midpoints, weights)
     conv(k,dist)
 end
@@ -104,8 +106,9 @@ function kde(data::Tuple{RealVector, RealVector}, dist::BivariateDistribution;
     kde(data,weights,(xmid,ymid),dist)
 end
 
-function kde(data::Tuple{RealVector, RealVector}, midpoints::Tuple{Range, Range};
-             bandwidth=default_bandwidth(data), kernel=Normal, weights::Weights = default_weights(data))
+function kde(data::Tuple{RealVector, RealVector}, midpoints::Tuple{Rx, Ry};
+             bandwidth=default_bandwidth(data), kernel=Normal,
+             weights::Weights = default_weights(data)) where {Rx<:AbstractRange,Ry<:AbstractRange}
 
     dist = kernel_dist(kernel,bandwidth)
     kde(data,weights,midpoints,dist)

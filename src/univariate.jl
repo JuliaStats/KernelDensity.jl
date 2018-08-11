@@ -1,5 +1,5 @@
 # Store both grid and density for KDE over the real line
-mutable struct UnivariateKDE{R<:Range} <: AbstractKDE
+mutable struct UnivariateKDE{R<:AbstractRange} <: AbstractKDE
     x::R
     density::Vector{Float64}
 end
@@ -80,7 +80,7 @@ const Weights = Union{UniformWeights, RealVector, StatsBase.Weights}
 
 
 # tabulate data for kde
-function tabulate(data::RealVector, midpoints::Range, weights::Weights=default_weights(data))
+function tabulate(data::RealVector, midpoints::R, weights::Weights=default_weights(data)) where R<:AbstractRange
     npoints = length(midpoints)
     s = step(midpoints)
 
@@ -131,7 +131,7 @@ function conv(k::UnivariateKDE, dist::UnivariateDistribution)
 end
 
 # main kde interface methods
-function kde(data::RealVector, weights::Weights, midpoints::Range, dist::UnivariateDistribution)
+function kde(data::RealVector, weights::Weights, midpoints::R, dist::UnivariateDistribution) where R<:AbstractRange
     k = tabulate(data, midpoints, weights)
     conv(k,dist)
 end
@@ -143,8 +143,8 @@ function kde(data::RealVector, dist::UnivariateDistribution;
     kde(data,weights,midpoints,dist)
 end
 
-function kde(data::RealVector, midpoints::Range;
-             bandwidth=default_bandwidth(data), kernel=Normal, weights=default_weights(data))
+function kde(data::RealVector, midpoints::R;
+             bandwidth=default_bandwidth(data), kernel=Normal, weights=default_weights(data)) where R<:AbstractRange
     bandwidth > 0.0 || error("Bandwidth must be positive")
     dist = kernel_dist(kernel,bandwidth)
     kde(data,weights,midpoints,dist)
@@ -162,10 +162,10 @@ end
 #   B. W. Silverman (1986)
 #   sections 3.4.3 (pp. 48-52) and 3.5 (pp. 61-66)
 
-function kde_lscv(data::RealVector, midpoints::Range;
+function kde_lscv(data::RealVector, midpoints::R;
                   kernel=Normal,
                   bandwidth_range::Tuple{Real,Real}=(h=default_bandwidth(data); (0.25*h,1.5*h)),
-                  weights=default_weights(data))
+                  weights=default_weights(data)) where R<:AbstractRange
 
     ndata = length(data)
     k = tabulate(data, midpoints, weights)

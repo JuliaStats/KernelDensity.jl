@@ -2,7 +2,6 @@ VERSION < v"0.7" && __precompile__()
 
 module KernelDensity
 
-using Compat
 using StatsBase
 using Distributions
 using Optim

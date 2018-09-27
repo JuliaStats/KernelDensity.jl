@@ -10,7 +10,8 @@ end
 function InterpKDE(kde::UnivariateKDE, opts...)
     itp_u = interpolate(kde.density, opts...)
     itp = scale(itp_u, kde.x)
-    InterpKDE{typeof(kde),typeof(itp)}(kde, itp)
+    etp = extrapolate(itp, zero(eltype(kde.density)))
+    InterpKDE{typeof(kde),typeof(etp)}(kde, etp)
 end
 InterpKDE(kde::UnivariateKDE) = InterpKDE(kde, BSpline(Quadratic(Line(OnGrid()))))
 
@@ -18,7 +19,8 @@ InterpKDE(kde::UnivariateKDE) = InterpKDE(kde, BSpline(Quadratic(Line(OnGrid()))
 function InterpKDE(kde::BivariateKDE, opts...)
     itp_u = interpolate(kde.density,opts...)
     itp = scale(itp_u, kde.x, kde.y)
-    InterpKDE{typeof(kde),typeof(itp)}(kde, itp)
+    etp = extrapolate(itp, zero(eltype(kde.density)))
+    InterpKDE{typeof(kde),typeof(etp)}(kde, etp)
 end
 InterpKDE(kde::BivariateKDE) = InterpKDE(kde::BivariateKDE, BSpline(Quadratic(Line(OnGrid()))))
 

@@ -22,9 +22,9 @@ function InterpKDE(kde::BivariateKDE, opts...)
 end
 InterpKDE(kde::BivariateKDE) = InterpKDE(kde::BivariateKDE, BSpline(Quadratic(Line())), OnGrid())
 
-pdf(ik::InterpKDE,x::Real...) = ik.itp[x...]
-pdf(ik::InterpKDE,xs::AbstractVector) = [ik.itp[x] for x in xs]
-pdf(ik::InterpKDE,xs::AbstractVector,ys::AbstractVector) = [ik.itp[x,y] for x in xs, y in ys]
+pdf(ik::InterpKDE,x::Real...) = ik.itp(x...)
+pdf(ik::InterpKDE,xs::AbstractVector) = [ik.itp(x) for x in xs]
+pdf(ik::InterpKDE,xs::AbstractVector,ys::AbstractVector) = [ik.itp(x,y) for x in xs, y in ys]
 
 pdf(k::UnivariateKDE,x) = pdf(InterpKDE(k),x)
 pdf(k::BivariateKDE,x,y) = pdf(InterpKDE(k),x,y)

@@ -162,6 +162,35 @@ end
 #   B. W. Silverman (1986)
 #   sections 3.4.3 (pp. 48-52) and 3.5 (pp. 61-66)
 
+function lscv_bw(data::RealVector, midpoints::R;
+                 kernel=Normal,
+                 bandwidth_range::Tuple{Real,Real}=(h=default_bandwidth(data); (0.25*h,1.5*h)),
+                 weights=default_weights(data)) where R<:AbstractRange
+
+    ndata = length(data)
+    k = tabulate(data, midpoints, weights)
+
+    # the ft here is K/ba*sqrt(2pi) * u(s), it is K times the Yl in Silverman's book
+    K = length(k.density)
+    ft = rfft(k.density)
+
+    ft2 = abs2.(ft)
+    c = -twoπ/(step(k.x)*K)
+    hlb, hub = bandwidth_range
+
+    opt = Optim.optimize(hlb, hub) do h
+        dist = kernel_dist(kernel, h)
+        ψ = 0.0
+        for j = 1:length(ft2)-1
+            ks = real(cf(dist, j*c))
+            ψ += ft2[j+1]*(ks-2.0)*ks
+        end
+        ψ*step(k.x)/K + pdf(dist,0.0)/ndata
+    end
+
+    return Optim.minimizer(opt)
+end
+
 function kde_lscv(data::RealVector, midpoints::R;
                   kernel=Normal,
                   bandwidth_range::Tuple{Real,Real}=(h=default_bandwidth(data); (0.25*h,1.5*h)),
@@ -212,4 +241,15 @@ function kde_lscv(data::RealVector;
 
     midpoints = kde_range(boundary,npoints)
     kde_lscv(data,midpoints; kernel=kernel, bandwidth_range=bandwidth_range, weights=weights)
+end
+
+function lscv_bw(data::RealVector;
+                 boundary::Tuple{Real,Real}=kde_boundary(data,default_bandwidth(data)),
+                 npoints::Int=2048,
+                 kernel=Normal,
+                 bandwidth_range::Tuple{Real,Real}=(h=default_bandwidth(data); (0.25*h,1.5*h)),
+                 weights::Weights = default_weights(data))
+
+    midpoints = kde_range(boundary,npoints)
+    lscv_bw(data,midpoints; kernel=kernel, bandwidth_range=bandwidth_range, weights=weights)
 end

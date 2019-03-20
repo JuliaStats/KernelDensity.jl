@@ -9,7 +9,7 @@ import StatsBase: RealVector, RealMatrix
 import Distributions: twoπ, pdf
 import FFTW: rfft, irfft
 
-export kde, kde_lscv, UnivariateKDE, BivariateKDE, InterpKDE, pdf
+export kde, kde_lscv, UnivariateKDE, BivariateKDE, InterpKDE, pdf, lscv_bw
 
 abstract type AbstractKDE end
 

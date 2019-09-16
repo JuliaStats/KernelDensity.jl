@@ -1,7 +1,24 @@
-# Store both grid and density for KDE over R2
+"""
+$(TYPEDEF)
+
+Store both grid and density for KDE over the real line.
+
+Reading the fields directly is part of the API, and
+
+```julia
+sum(density) * step(x) * step(y) ≈ 1
+```
+
+# Fields
+
+$(FIELDS)
+"""
 mutable struct BivariateKDE{Rx<:AbstractRange,Ry<:AbstractRange} <: AbstractKDE
+    "First coordinate of gridpoints for evaluating the density."
     x::Rx
+    "Second coordinate of gridpoints for evaluating the density."
     y::Ry
+    "Kernel density at corresponding gridpoints `Tuple.(x, permutedims(y))`."
     density::Matrix{Float64}
 end
 

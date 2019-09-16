@@ -1,6 +1,22 @@
-# Store both grid and density for KDE over the real line
+"""
+$(TYPEDEF)
+
+Store both grid and density for KDE over ``ℝ²``.
+
+Reading the fields directly is part of the API, and
+
+```julia
+sum(density) * step(x) ≈ 1
+```
+
+# Fields
+
+$(FIELDS)
+"""
 mutable struct UnivariateKDE{R<:AbstractRange} <: AbstractKDE
+    "Gridpoints for evaluating the density."
     x::R
+    "Kernel density at corresponding gridpoints `x`."
     density::Vector{Float64}
 end
 

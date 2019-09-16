@@ -1,5 +1,6 @@
 module KernelDensity
 
+using DocStringExtensions: TYPEDEF, FIELDS
 using StatsBase
 using Distributions
 using Optim

@@ -1,0 +1,22 @@
+name = "KernelDensity"
+uuid = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
+authors = ["Simon Byrne and various contributors"]
+version = "0.5.1"
+
+[deps]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
+Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
+Optim = "429524aa-4258-5aef-a3af-852621145aeb"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+
+[compat]
+Interpolations = "≥ 0.9"
+Optim = "≥ 0.16"
+julia = "^1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

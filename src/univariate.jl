@@ -17,7 +17,7 @@ mutable struct UnivariateKDE{R<:AbstractRange} <: AbstractKDE
     "Gridpoints for evaluating the density."
     x::R
     "Kernel density at corresponding gridpoints `x`."
-    density::Vector{Float64}
+    density::AbstractVector{}
 end
 
 # construct kernel from bandwidth
@@ -101,7 +101,7 @@ function tabulate(data::RealVector, midpoints::R, weights::Weights=default_weigh
     s = step(midpoints)
 
     # Set up a grid for discretized data
-    grid = zeros(Float64, npoints)
+    grid = zeros(eltype(data),npoints)
     ainc = 1.0 / (sum(weights)*s*s)
 
     # weighted discretization (cf. Jones and Lotwick)
@@ -115,35 +115,27 @@ function tabulate(data::RealVector, midpoints::R, weights::Weights=default_weigh
     end
 
     # returns an un-convolved KDE
-    UnivariateKDE(midpoints, grid)
+    if eltype(grid)<:TrackedReal
+        UnivariateKDE(midpoints, Tracker.collect(grid))
+    else 
+        UnivariateKDE(midpoints, grid)
+    end
 end
 
 # convolve raw KDE with kernel
 # TODO: use in-place fft
 function conv(k::UnivariateKDE, dist::UnivariateDistribution)
-    # Transform to Fourier basis
-    K = length(k.density)
-    ft = rfft(k.density)
+    grid = range(-5*std(dist),stop=5*std(dist),step=step(k.x))
+    density = conv1d(k.density, pdf.(dist,grid)) * step(k.x)
+    UnivariateKDE(k.x, density)
+end
 
-    # Convolve fft with characteristic function of kernel
-    # empirical cf
-    #  = \sum_{n=1}^N e^{i*t*X_n} / N
-    #  = \sum_{k=0}^K e^{i*t*(a+k*s)} N_k / N
-    #  = e^{i*t*a} \sum_{k=0}^K e^{-2pi*i*k*(-t*s*K/2pi)/K} N_k / N
-    #  = A * fft(N_k/N)[-t*s*K/2pi + 1]
-    c = -twoπ/(step(k.x)*K)
-    for j = 0:length(ft)-1
-        ft[j+1] *= cf(dist,j*c)
-    end
+function conv1d(x,w)
+	padding = Int(ceil((length(w)-1)/2))
+	x,w = reshape(x,(:,1,1)), reshape(w,(:,1,1))
 
-    dens = irfft(ft, K)
-    # fix rounding error.
-    for i = 1:K
-        dens[i] = max(0.0,dens[i])
-    end
-
-    # Invert the Fourier transform to get the KDE
-    UnivariateKDE(k.x, dens)
+	dims = DenseConvDims(size(x),size(w); padding=(padding,padding))
+	conv( x, w, dims)[:,1,1]
 end
 
 # main kde interface methods

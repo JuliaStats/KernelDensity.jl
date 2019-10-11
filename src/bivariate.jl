@@ -19,7 +19,7 @@ mutable struct BivariateKDE{Rx<:AbstractRange,Ry<:AbstractRange} <: AbstractKDE
     "Second coordinate of gridpoints for evaluating the density."
     y::Ry
     "Kernel density at corresponding gridpoints `Tuple.(x, permutedims(y))`."
-    density::Matrix{Float64}
+    density::AbstractMatrix{}
 end
 
 function kernel_dist(::Type{D},w::Tuple{Real,Real}) where D<:UnivariateDistribution
@@ -54,7 +54,7 @@ function tabulate(data::Tuple{RealVector, RealVector}, midpoints::Tuple{Rx, Ry},
     sx, sy = step(xmid), step(ymid)
 
     # Set up a grid for discretized data
-    grid = zeros(Float64, nx, ny)
+    grid = zeros(eltype(data),nx,ny)
     ainc = 1.0 / (sum(weights)*(sx*sy)^2)
 
     # weighted discretization (cf. Jones and Lotwick)

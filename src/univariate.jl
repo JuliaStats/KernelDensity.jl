@@ -115,27 +115,14 @@ function tabulate(data::RealVector, midpoints::R, weights::Weights=default_weigh
     end
 
     # returns an un-convolved KDE
-    if eltype(grid)<:TrackedReal
-        UnivariateKDE(midpoints, Tracker.collect(grid))
-    else 
-        UnivariateKDE(midpoints, grid)
-    end
+    UnivariateKDE(midpoints, grid)
 end
 
 # convolve raw KDE with kernel
-# TODO: use in-place fft
 function conv(k::UnivariateKDE, dist::UnivariateDistribution)
     grid = range(-5*std(dist),stop=5*std(dist),step=step(k.x))
-    density = conv1d(k.density, pdf.(dist,grid)) * step(k.x)
+    density = conv(k.density, pdf.(dist,grid)) * step(k.x)
     UnivariateKDE(k.x, density)
-end
-
-function conv1d(x,w)
-	padding = Int(ceil((length(w)-1)/2))
-	x,w = reshape(x,(:,1,1)), reshape(w,(:,1,1))
-
-	dims = DenseConvDims(size(x),size(w); padding=(padding,padding))
-	conv( x, w, dims)[:,1,1]
 end
 
 # main kde interface methods

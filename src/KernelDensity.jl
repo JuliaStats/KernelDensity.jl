@@ -5,14 +5,15 @@ using StatsBase
 using Distributions
 using Optim
 using Interpolations
-using Flux
 using Flux.Tracker: TrackedReal
+using Flux
 
 import StatsBase: RealVector, RealMatrix
 import Distributions: twoπ, pdf
 import FFTW: rfft, irfft
 import Flux.Tracker: conv
 import Base.round
+import Core.Integer
 
 export kde, kde_lscv, UnivariateKDE, BivariateKDE, InterpKDE, pdf
 
@@ -28,10 +29,13 @@ function conv(x::AbstractArray{T,1}, w::AbstractArray{T,1}) where T
 end
 
 # patches for TrackedReal and Vector{TrackedReal}
-conv(x::AbstractArray{Tracker.TrackedReal{T},1}, w::AbstractArray) where {T,N} = conv(Tracker.collect(x),w)
-conv(x::AbstractArray, w::AbstractArray{Tracker.TrackedReal{T},1}) where {T,N} = conv(x,Tracker.collect(w))
-conv(x::AbstractArray{Tracker.TrackedReal{T},1}, w::AbstractArray{Tracker.TrackedReal{T},1}) where {T,N} = conv(Tracker.collect(x),Tracker.collect(w))
+conv(x::AbstractArray{Tracker.TrackedReal{T},1}, w::AbstractArray) where T = conv(Tracker.collect(x),w)
+conv(x::AbstractArray, w::AbstractArray{Tracker.TrackedReal{T},1}) where T = conv(x,Tracker.collect(w))
+conv(x::AbstractArray{Tracker.TrackedReal{T},1}, w::AbstractArray{Tracker.TrackedReal{T},1}) where T = conv(Tracker.collect(x),Tracker.collect(w))
+
 round(::Type{R}, t::TrackedReal) where {R<:Real} = round(R, t.data)
+round(t::TrackedReal, mode::RoundingMode) = round(t.data, mode)
+Integer(x::TrackedReal) = Integer(x.data)
 
 include("univariate.jl")
 include("bivariate.jl")

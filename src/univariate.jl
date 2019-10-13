@@ -120,7 +120,8 @@ end
 
 # convolve raw KDE with kernel
 function conv(k::UnivariateKDE, dist::UnivariateDistribution)
-    grid = range(-5*std(dist),stop=5*std(dist),step=step(k.x))
+    half_grid = range(step(k.x),5*std(dist),step=step(k.x))
+    grid = [-reverse(half_grid);0;half_grid]
     density = conv(k.density, pdf.(dist,grid)) * step(k.x)
     UnivariateKDE(k.x, density)
 end

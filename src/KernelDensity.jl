@@ -19,15 +19,6 @@ export kde, kde_lscv, UnivariateKDE, BivariateKDE, InterpKDE, pdf
 
 abstract type AbstractKDE end
 
-"""one dimensional convolution"""
-function conv(x::AbstractArray{T,1}, w::AbstractArray{T,1}) where T
-	padding = Int(ceil((length(w)-1)/2))
-	x,w = reshape(x,(:,1,1)), reshape(w,(:,1,1))
-
-	dims = DenseConvDims(size(x),size(w); padding=(padding,padding))
-	conv( x, w, dims)[:,1,1]
-end
-
 """n-dimensional convolution"""
 function conv(x::AbstractArray{T,N}, w::AbstractArray{T,N}) where {T,N}
 	wdim = Int.(ceil.((size(w).-1)./2))
@@ -39,9 +30,9 @@ function conv(x::AbstractArray{T,N}, w::AbstractArray{T,N}) where {T,N}
 end
 
 # patches for TrackedReal and Vector{TrackedReal}
-conv(x::AbstractArray{Tracker.TrackedReal{T},1}, w::AbstractArray) where T = conv(Tracker.collect(x),w)
-conv(x::AbstractArray, w::AbstractArray{Tracker.TrackedReal{T},1}) where T = conv(x,Tracker.collect(w))
-conv(x::AbstractArray{Tracker.TrackedReal{T},1}, w::AbstractArray{Tracker.TrackedReal{T},1}) where T = conv(Tracker.collect(x),Tracker.collect(w))
+conv(x::AbstractArray{TrackedReal{T},N}, w::AbstractArray) where {T,N} = conv(Tracker.collect(x),w)
+conv(x::AbstractArray, w::AbstractArray{TrackedReal{T},N}) where {T,N} = conv(x,Tracker.collect(w))
+conv(x::AbstractArray{TrackedReal{T},N}, w::AbstractArray{TrackedReal{T},N}) where {T,N} = conv(Tracker.collect(x),Tracker.collect(w))
 
 round(::Type{R}, t::TrackedReal) where {R<:Real} = round(R, t.data)
 round(t::TrackedReal, mode::RoundingMode) = round(t.data, mode)

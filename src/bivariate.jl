@@ -54,7 +54,7 @@ function tabulate(data::Tuple{RealVector, RealVector}, midpoints::Tuple{Rx, Ry},
     sx, sy = step(xmid), step(ymid)
 
     # Set up a grid for discretized data
-    grid = zeros(eltype(data),nx,ny)
+    grid = zeros(eltype(xdata),nx,ny)
     ainc = 1.0 / (sum(weights)*(sx*sy)^2)
 
     # weighted discretization (cf. Jones and Lotwick)
@@ -77,28 +77,16 @@ end
 
 # convolution with product distribution of two univariates distributions
 function conv(k::BivariateKDE, dist::Tuple{UnivariateDistribution,UnivariateDistribution})
-    # Transform to Fourier basis
-    Kx, Ky = size(k.density)
-    ft = rfft(k.density)
-
     distx, disty = dist
 
-    # Convolve fft with characteristic function of kernel
-    cx = -twoπ/(step(k.x)*Kx)
-    cy = -twoπ/(step(k.y)*Ky)
-    for j = 0:size(ft,2)-1
-        for i = 0:size(ft,1)-1
-            ft[i+1,j+1] *= cf(distx,i*cx)*cf(disty,min(j,Ky-j)*cy)
-        end
-    end
-    dens = irfft(ft, Kx)
+    half_gridx = range(step(k.x),5*std(distx),step=step(k.x))
+    gridx = [-reverse(half_gridx);0;half_gridx]
 
-    for i = 1:length(dens)
-        dens[i] = max(0.0,dens[i])
-    end
+    half_gridy = range(step(k.y),5*std(disty),step=step(k.y))
+    gridy = [-reverse(half_gridy);0;half_gridy]
 
-    # Invert the Fourier transform to get the KDE
-    BivariateKDE(k.x, k.y, dens)
+    density = conv(k.density, pdf.(distx,gridx)*pdf.(disty,gridy)')' * step(k.x) * step(k.y)
+    BivariateKDE(k.x, k.y, density)
 end
 
 const BivariateDistribution = Union{MultivariateDistribution,Tuple{UnivariateDistribution,UnivariateDistribution}}

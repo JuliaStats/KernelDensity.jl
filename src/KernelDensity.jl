@@ -19,13 +19,23 @@ export kde, kde_lscv, UnivariateKDE, BivariateKDE, InterpKDE, pdf
 
 abstract type AbstractKDE end
 
-"""one dimensional convolution using Flux"""
+"""one dimensional convolution"""
 function conv(x::AbstractArray{T,1}, w::AbstractArray{T,1}) where T
 	padding = Int(ceil((length(w)-1)/2))
 	x,w = reshape(x,(:,1,1)), reshape(w,(:,1,1))
 
 	dims = DenseConvDims(size(x),size(w); padding=(padding,padding))
 	conv( x, w, dims)[:,1,1]
+end
+
+"""n-dimensional convolution"""
+function conv(x::AbstractArray{T,N}, w::AbstractArray{T,N}) where {T,N}
+	wdim = Int.(ceil.((size(w).-1)./2))
+	padding = Iterators.flatten([ (wdim[i],wdim[i]) for i=1:length(wdim) ]) |> collect
+
+	dims = DenseConvDims((size(x)...,1,1),(size(w)...,1,1); padding=padding )
+	result = Tracker.conv( reshape(x,(size(x)...,1,1)), reshape(w,(size(w)...,1,1)), dims)
+	return dropdims(result, dims = (1+N,2+N))
 end
 
 # patches for TrackedReal and Vector{TrackedReal}

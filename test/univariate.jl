@@ -29,34 +29,34 @@ for X in ([0.0], [0.0,0.0], [0.0,0.5], [-0.5:0.1:0.5;])
         @test isa(k1,UnivariateKDE)
         @test length(k1.density) == length(k1.x)
         @test all(k1.density .>= 0.0)
-        @test sum(k1.density)*step(k1.x) ≈ 1.0
+        @test sum(k1.density)*step(k1.x) ≈ 1.0 atol=0.05
 
         k2 = KernelDensity.conv(k1,kernel_dist(D,0.1))
         @test isa(k2,UnivariateKDE)
         @test length(k2.density) == length(k2.x)
         @test all(k2.density .>= 0.0)
-        @test sum(k2.density)*step(k2.x) ≈ 1.0
+        @test sum(k2.density)*step(k2.x) ≈ 1.0 atol=0.05
 
         k3 = kde(X;kernel=D)
         @test isa(k3,UnivariateKDE)
         @test length(k3.density) == length(k3.x)
         @test all(k3.density .>= 0.0)
-        @test sum(k3.density)*step(k3.x) ≈ 1.0
+        @test sum(k3.density)*step(k3.x) ≈ 1.0 atol=0.05
 
         k4 = kde(X,r;kernel=D)
         @test isa(k4,UnivariateKDE)
         @test length(k4.density) == length(k4.x)
         @test all(k4.density .>= 0.0)
-        @test sum(k4.density)*step(k4.x) ≈ 1.0
+        @test sum(k4.density)*step(k4.x) ≈ 1.0 atol=0.05
 
         k5 = kde_lscv(X)
         @test isa(k5,UnivariateKDE)
         @test length(k5.density) == length(k5.x)
         @test all(k5.density .>= 0.0)
-        @test sum(k5.density)*step(k5.x) ≈ 1.0
+        @test sum(k5.density)*step(k5.x) ≈ 1.0 atol=0.05
 
         k6 = kde(X,r;kernel=D, weights=fill(1.0/length(X),length(X)))
-        @test k4.density ≈ k6.density
+        @test k4.density ≈ k6.density atol=0.05
     end
 end
 

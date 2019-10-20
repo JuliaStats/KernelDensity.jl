@@ -17,7 +17,7 @@ mutable struct UnivariateKDE{R<:AbstractRange} <: AbstractKDE
     "Gridpoints for evaluating the density."
     x::R
     "Kernel density at corresponding gridpoints `x`."
-    density::Vector{Float64}
+    density::AbstractVector{}
 end
 
 # construct kernel from bandwidth
@@ -101,7 +101,7 @@ function tabulate(data::RealVector, midpoints::R, weights::Weights=default_weigh
     s = step(midpoints)
 
     # Set up a grid for discretized data
-    grid = zeros(Float64, npoints)
+    grid = zeros(eltype(data),npoints)
     ainc = 1.0 / (sum(weights)*s*s)
 
     # weighted discretization (cf. Jones and Lotwick)

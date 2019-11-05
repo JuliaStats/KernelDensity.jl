@@ -91,11 +91,12 @@ function conv(k::BivariateKDE, dist::Tuple{UnivariateDistribution,UnivariateDist
             ft[i+1,j+1] *= cf(distx,i*cx)*cf(disty,min(j,Ky-j)*cy)
         end
     end
-    dens = irfft(ft, Kx)
+    # i = 0:size(ft,1)-1
+    # j = 0:size(ft,2)-1
+    # ft = ft .* ( cf.(distx,i*cx) * cf.(disty,min.(j,Ky-j)*cy)' )
 
-    for i = 1:length(dens)
-        dens[i] = max(0.0,dens[i])
-    end
+    dens = irfft(ft, Kx)
+    dens = max.(0.0,dens)
 
     # Invert the Fourier transform to get the KDE
     BivariateKDE(k.x, k.y, dens)

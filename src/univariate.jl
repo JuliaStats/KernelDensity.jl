@@ -125,22 +125,12 @@ function conv(k::UnivariateKDE, dist::UnivariateDistribution)
     K = length(k.density)
     ft = rfft(k.density)
 
-    # Convolve fft with characteristic function of kernel
-    # empirical cf
-    #  = \sum_{n=1}^N e^{i*t*X_n} / N
-    #  = \sum_{k=0}^K e^{i*t*(a+k*s)} N_k / N
-    #  = e^{i*t*a} \sum_{k=0}^K e^{-2pi*i*k*(-t*s*K/2pi)/K} N_k / N
-    #  = A * fft(N_k/N)[-t*s*K/2pi + 1]
     c = -twoπ/(step(k.x)*K)
-    for j = 0:length(ft)-1
-        ft[j+1] *= cf(dist,j*c)
-    end
+    j = 0:length(ft)-1
+    ft = ft .* cf.(dist,j*c)
 
     dens = irfft(ft, K)
-    # fix rounding error.
-    for i = 1:K
-        dens[i] = max(0.0,dens[i])
-    end
+    dens = max.(0.0,dens)
 
     # Invert the Fourier transform to get the KDE
     UnivariateKDE(k.x, dens)

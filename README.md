@@ -11,7 +11,7 @@ Kernel density estimators for Julia.
 The main accessor function is `kde`:
 
 ```
-kde(data)
+U = kde(data)
 ```
 
 will construct a `UnivariateKDE` object from the real vector `data`. The
@@ -28,6 +28,12 @@ optional keyword arguments are
   `kernel_dist` function.
 * `bandwidth`: the bandwidth of the kernel. Default is to use Silverman's
   rule.
+
+The `UnivariateKDE` object `U` contains gridded coordinates (`K.x`) and the density
+estimate (`K.density`). The results could be plotted by, for instance,
+```
+plot(U.x,U.density)
+```
 
 A related function
 
@@ -73,7 +79,7 @@ e.g. `boundary` now takes a tuple of tuples `((xlo,xhi),(ylo,yhi))`.
 ### Interpolation
 
 The KDE objects are stored as gridded density values, with attached
-coordinates. These are typically sufficient for plotting (see below), but
+coordinates. These are typically sufficient for plotting (see above), but
 intermediate values can be interpolated using the
 [Interpolations.jl](https://github.com/tlycken/Interpolations.jl) package via the `pdf` method
 (extended from Distributions.jl).

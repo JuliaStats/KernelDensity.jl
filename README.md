@@ -67,14 +67,20 @@ allows specifying both the distribution and grid.
 The usage mirrors that of the univariate case, except that `data` is now
 either a tuple of vectors
 ```
-kde((xdata, ydata))
+B = kde((xdata, ydata))
 ```
 or a matrix with two columns
 ```
-kde(datamatrix)
+B = kde(datamatrix)
 ```
 Similarly, the optional arguments all now take tuple arguments:
 e.g. `boundary` now takes a tuple of tuples `((xlo,xhi),(ylo,yhi))`.
+
+The `BivariateKDE` object `B` contains gridded coordinates (`B.x` and `B.y`) and the bivariate density
+estimate (`B.density`). The results could be plotted by, for instance,
+```
+contour(B.x,B.y,B.density')         #notice the transpose
+```
 
 ### Interpolation
 

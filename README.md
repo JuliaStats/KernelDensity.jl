@@ -73,10 +73,7 @@ Similarly, the optional arguments all now take tuple arguments:
 e.g. `boundary` now takes a tuple of tuples `((xlo,xhi),(ylo,yhi))`.
 
 The `BivariateKDE` object `B` contains gridded coordinates (`B.x` and `B.y`) and the bivariate density
-estimate (`B.density`). The results could be plotted by, for instance,
-```
-contour(B.x,B.y,B.density')         #notice the transpose
-```
+estimate (`B.density`).
 
 ### Interpolation
 

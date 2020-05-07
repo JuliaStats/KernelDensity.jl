@@ -30,11 +30,7 @@ optional keyword arguments are
   rule.
 
 The `UnivariateKDE` object `U` contains gridded coordinates (`U.x`) and the density
-estimate (`U.density`). The results could be plotted by, for instance,
-```
-plot(U.x,U.density)
-```
-
+estimate (`U.density`). These are typically sufficient for plotting.
 A related function
 
 ``` kde_lscv(data) ```

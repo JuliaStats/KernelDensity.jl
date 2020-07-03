@@ -173,6 +173,54 @@ function kde(data::RealVector; bandwidth=default_bandwidth(data), kernel=Normal,
     kde(data,dist;boundary=boundary,npoints=npoints,weights=weights)
 end
 
+function optimize(f, x_lower, x_upper)
+    
+    if x_lower > x_upper
+        error("x_lower must be less than x_upper")
+    end
+
+    T = promote_type(typeof(x_lower/1), typeof(x_upper/1))
+
+    rel_tol::T=sqrt(eps(T))
+    abs_tol::T=eps(T)
+    iterations=1000
+
+    invphi::T = 0.5 * (sqrt(5) - 1)
+    invphisq::T = 0.5 * (3 - sqrt(5))
+
+    a::T, b::T = x_lower, x_upper
+    h = b - a
+    c = a + invphisq * h
+    d = a + invphi * h
+
+    fc, fd = f(c), f(d)
+
+    function tolerable_interval(lower, upper)
+        midpoint = (lower + upper) / 2
+        tol = abs_tol + rel_tol * abs(midpoint)
+        return (upper - lower) <= 2tol
+    end
+    
+    for _ in 1:iterations
+        h = invphi * h
+        if fc < fd
+            tolerable_interval(a, d) && break
+            b = d
+            d, fd = c, fc
+            c = a + invphisq * h
+            fc = f(c)
+        else
+            tolerable_interval(c, b) && break
+            a = c
+            c, fc = d, fd
+            d = a + invphi * h
+            fd = f(d)
+        end
+    end
+
+    return fc < fd ? (a + d) / 2 : (c + b) / 2
+end
+
 # Select bandwidth using least-squares cross validation, from:
 #   Density Estimation for Statistics and Data Analysis
 #   B. W. Silverman (1986)
@@ -194,7 +242,7 @@ function kde_lscv(data::RealVector, midpoints::R;
     c = -twoπ/(step(k.x)*K)
     hlb, hub = bandwidth_range
 
-    opt = Optim.optimize(hlb, hub) do h
+    minimizer = optimize(hlb, hub) do h
         dist = kernel_dist(kernel, h)
         ψ = 0.0
         for j = 1:length(ft2)-1
@@ -204,7 +252,7 @@ function kde_lscv(data::RealVector, midpoints::R;
         ψ*step(k.x)/K + pdf(dist,0.0)/ndata
     end
 
-    dist = kernel_dist(kernel, Optim.minimizer(opt))
+    dist = kernel_dist(kernel, minimizer)
     for j = 0:length(ft)-1
         ft[j+1] *= cf(dist, j*c)
     end

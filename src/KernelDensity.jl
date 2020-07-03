@@ -3,7 +3,6 @@ module KernelDensity
 using DocStringExtensions: TYPEDEF, FIELDS
 using StatsBase
 using Distributions
-using Optim
 using Interpolations
 
 import StatsBase: RealVector, RealMatrix

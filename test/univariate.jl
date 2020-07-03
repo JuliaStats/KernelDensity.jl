@@ -63,3 +63,9 @@ end
 k11 = kde([0.0, 1.], r, bandwidth=1, weights=[0,1])
 k12 = kde([1.], r, bandwidth=1)
 @test k11.density ≈ k12.density
+
+rel_tol = sqrt(eps(Float64))
+abs_tol = eps(Float64)
+
+minimizer = KernelDensity.optimize(x -> (x - 1)^2, 0, 2)
+@test abs(minimizer - 1) <= abs_tol + rel_tol * abs(minimizer)

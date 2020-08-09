@@ -173,6 +173,28 @@ function kde(data::RealVector; bandwidth=default_bandwidth(data), kernel=Normal,
     kde(data,dist;boundary=boundary,npoints=npoints,weights=weights)
 end
 
+"""
+    optimize(f, x_lower, x_upper; iterations=1000, rel_tol=nothing, abs_tol=nothing)
+
+Minimize the function `f` in the interval `x_lower..x_upper`, using the
+[golden-section search](https://en.wikipedia.org/wiki/Golden-section_search).
+Return an approximate minimum `x̃` or error if such approximate minimum cannot be found.
+
+This algorithm assumes that `-f` is unimodal on the interval `x_lower..x_upper`,
+that is to say, there exists a unique `x` in `x_lower..x_upper` such that `f` is
+decreasing on `x_lower..x` and increasing on `x..x_upper`.
+
+`rel_tol` and `abs_tol` determine the relative and absolute tolerance, that is
+to say, the returned value `x̃` should differ from the actual minimum `x` at most
+`abs_tol + rel_tol * abs(x̃)`.
+If not manually specified, `rel_tol` and `abs_tol` default to `sqrt(eps(T))` and
+`eps(T)` respectively, where `T` is the floating point type of `x_lower` and `x_upper`.
+
+`iterations` determines the maximum number of iterations allowed before convergence.
+
+This is a private, unexported function, used internally to select the optimal bandwidth
+automatically.
+"""
 function optimize(f, x_lower, x_upper; iterations=1000, rel_tol=nothing, abs_tol=nothing)
 
     if x_lower > x_upper

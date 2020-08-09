@@ -183,10 +183,10 @@ function optimize(f, x_lower, x_upper; iterations=1000, rel_tol=nothing, abs_tol
     rtol = something(rel_tol, sqrt(eps(T)))
     atol = something(abs_tol, eps(T))
     
-    function acceptable_interval(lower, upper)
+    function midpoint_and_convergence(lower, upper)
         midpoint = (lower + upper) / 2
         tol = atol + rtol * midpoint
-        return (upper - lower) <= 2tol
+        midpoint, (upper - lower) <= 2tol
     end
     
     invphi::T = 0.5 * (sqrt(5) - 1)
@@ -202,13 +202,15 @@ function optimize(f, x_lower, x_upper; iterations=1000, rel_tol=nothing, abs_tol
     for _ in 1:1000
         h *= invphi
         if fc < fd
-            acceptable_interval(a, d) && break
+            m, converged = midpoint_and_convergence(a, d)
+            converged && return m
             b = d
             d, fd = c, fc
             c = a + invphisq * h
             fc = f(c)
         else
-            acceptable_interval(c, b) && break
+            m, converged = midpoint_and_convergence(c, b)
+            converged && return m
             a = c
             c, fc = d, fd
             d = a + invphi * h
@@ -216,7 +218,7 @@ function optimize(f, x_lower, x_upper; iterations=1000, rel_tol=nothing, abs_tol
         end
     end
 
-    return fc < fd ? (a + d) / 2 : (c + b) / 2
+    error("Reached maximum number of iterations without convergence.")
 end
 
 # Select bandwidth using least-squares cross validation, from:

@@ -67,5 +67,5 @@ k12 = kde([1.], r, bandwidth=1)
 rel_tol = sqrt(eps(Float64))
 abs_tol = eps(Float64)
 
-minimizer = KernelDensity.optimize(x -> (x - 1)^2, 0, 2)
+minimizer = @inferred KernelDensity.optimize(x -> (x - 1)^2, 0, 2)
 @test abs(minimizer - 1) <= abs_tol + rel_tol * abs(minimizer)

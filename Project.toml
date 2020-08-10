@@ -1,7 +1,7 @@
 name = "KernelDensity"
 uuid = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
 authors = ["Simon Byrne and various contributors"]
-version = "0.5.1"
+version = "0.6.0"
 
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
@@ -11,8 +11,12 @@ Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
-Interpolations = "≥ 0.9"
-julia = "^1"
+julia = "1"
+Distributions = "0.23"
+DocStringExtensions = "0.8"
+Interpolations = "0.9, 0.10, 0.11, 0.12"
+FFTW = "1.2"
+StatsBase = "0.33"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

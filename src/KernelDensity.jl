@@ -7,7 +7,7 @@ using Interpolations
 
 import StatsBase: RealVector, RealMatrix
 import Distributions: twoπ, pdf
-import FFTW: rfft, irfft
+import FastTransforms: rfft, irfft
 
 export kde, kde_lscv, UnivariateKDE, BivariateKDE, InterpKDE, pdf
 

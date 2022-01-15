@@ -30,5 +30,5 @@ pdf(ik::InterpKDE,xs::AbstractVector,ys::AbstractVector) = [ik.itp(x,y) for x in
 
 pdf(k::UnivariateKDE,x) = pdf(InterpKDE(k),x)
 pdf(k::BivariateKDE,x,y) = pdf(InterpKDE(k),x,y)
-pdf(k::BivariateKDE,x::AbstractMatrix) = pdf(InterpKDE(k),x[:,1],x[:,2])
+pdf(k::BivariateKDE,x::AbstractMatrix) = [ik.itp(z[1], z[2]) for z in eachrow(x)]
 

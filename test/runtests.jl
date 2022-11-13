@@ -1,6 +1,7 @@
 tests = [
          "univariate",
          "bivariate",
+         "multivariate",
          "interp",
          ]
 

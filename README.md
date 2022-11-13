@@ -10,7 +10,7 @@ Kernel density estimators for Julia.
 ### Univariate
 The main accessor function is `kde`:
 
-```
+```julia
 U = kde(data)
 ```
 
@@ -33,7 +33,9 @@ The `UnivariateKDE` object `U` contains gridded coordinates (`U.x`) and the dens
 estimate (`U.density`). These are typically sufficient for plotting.
 A related function
 
-``` kde_lscv(data) ```
+```julia
+kde_lscv(data)
+```
 
 will construct a `UnivariateKDE` object, with the bandwidth selected by
 least-squares cross validation. It accepts the above keyword arguments, except
@@ -41,39 +43,51 @@ least-squares cross validation. It accepts the above keyword arguments, except
 
 
 There are also some slightly more advanced interfaces:
-```
+```julia
 kde(data, midpoints::R) where R<:AbstractRange
 ```
 allows specifying the internal grid to use. Optional keyword arguments are
 `kernel` and `bandwidth`.
 
-```
+```julia
 kde(data, dist::Distribution)
 ```
 allows specifying the exact distribution to use as the kernel. Optional
 keyword arguments are `boundary` and `npoints`.
 
-```
+```julia
 kde(data, midpoints::R, dist::Distribution) where R<:AbstractRange
 ```
 allows specifying both the distribution and grid.
 
-### Bivariate
+### Multivariate
 
 The usage mirrors that of the univariate case, except that `data` is now
-either a tuple of vectors
+either an `N`-tuple of vectors
+```julia
+M = kde((xdata, ydata, zdata))
 ```
-B = kde((xdata, ydata))
+or a matrix with `N` columns
+```julia
+M = kde(datamatrix)
 ```
-or a matrix with two columns
-```
-B = kde(datamatrix)
-```
-Similarly, the optional arguments all now take tuple arguments:
-e.g. `boundary` now takes a tuple of tuples `((xlo,xhi),(ylo,yhi))`.
+Similarly, the optional arguments all now take `N`-tuple arguments:
+e.g. `boundary` now takes a `N`-tuple of tuples `((xlo, xhi), (ylo, yhi), (zlo, zhi))`.
 
-The `BivariateKDE` object `B` contains gridded coordinates (`B.x` and `B.y`) and the bivariate density
-estimate (`B.density`).
+The `MultivariateKDE` object `M` contains gridded coordinates (`M.ranges`, an
+`N`-tuple of `AbstractRange`s) and the multivariate density estimate (`M.density`).
+
+### Bi- and Trivariate
+
+Special type definitions exist for the bi- and trivariate case:
+```julia
+const BivariateKDE = MultivariateKDE{2, ...}
+const TrivariateKDE = MultivariateKDE{3, ...}
+```
+
+Their contained gridded coordinates can be accessed as `B.x` and `B.y` for
+`B isa BivariateKDE` and `T.x`, `T.y`, and `T.z` for `T isa TrivariateKDE`,
+respectively.
 
 ### Interpolation
 
@@ -83,17 +97,19 @@ intermediate values can be interpolated using the
 [Interpolations.jl](https://github.com/tlycken/Interpolations.jl) package via the `pdf` method
 (extended from Distributions.jl).
 
-```
+```julia
 pdf(k::UnivariateKDE, x)
 pdf(k::BivariateKDE, x, y)
+pdf(k::TrivariateKDE, x, y, z)
+pdf(k::MultivariateKDE, x...)
 ```
 
-where `x` and `y` are real numbers or arrays.
+where `x`, `y`, and `z` are real numbers or arrays.
 
 If you are making multiple calls to `pdf`, it will be more efficient to
 construct an intermediate `InterpKDE` to store the interpolation structure:
 
-```
+```julia
 ik = InterpKDE(k)
 pdf(ik, x)
 ```

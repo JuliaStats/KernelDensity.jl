@@ -5,7 +5,6 @@ using StatsBase
 using Distributions
 using Interpolations
 
-import StatsBase: RealVector, RealMatrix
 import Distributions: twoπ, pdf
 import FFTW: rfft, irfft
 

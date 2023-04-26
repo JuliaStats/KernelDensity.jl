@@ -29,7 +29,7 @@ kernel_dist(::Type{D},w::Real) where {D} = (s = w/std(D(0.0,1.0)); D(0.0,s))
 
 
 # Silverman's rule of thumb for KDE bandwidth selection
-function default_bandwidth(data::RealVector, alpha::Float64 = 0.9)
+function default_bandwidth(data::AbstractVector{<:Real}, alpha::Float64 = 0.9)
     # Determine length of data
     ndata = length(data)
     ndata <= 1 && return alpha
@@ -53,7 +53,7 @@ function default_bandwidth(data::RealVector, alpha::Float64 = 0.9)
     return alpha * width * ndata^(-0.2)
 end
 
-function default_weights(data::RealVector)
+function default_weights(data::AbstractVector{<:Real})
     UniformWeights(length(data))
 end
 
@@ -72,7 +72,7 @@ end
 
 # default kde range
 # Should extend enough beyond the data range to avoid cyclic correlation from the FFT
-function kde_boundary(data::RealVector, bandwidth::Real)
+function kde_boundary(data::AbstractVector{<:Real}, bandwidth::Real)
     lo, hi = extrema(data)
     lo - 4.0*bandwidth, hi + 4.0*bandwidth
 end
@@ -92,11 +92,11 @@ UniformWeights(n) = UniformWeights{n}()
 Base.sum(x::UniformWeights) = 1.
 Base.getindex(x::UniformWeights{N}, i) where {N} = 1/N
 
-const Weights = Union{UniformWeights, RealVector, StatsBase.Weights}
+const Weights = Union{UniformWeights, AbstractVector{<:Real}, StatsBase.Weights}
 
 
 # tabulate data for kde
-function tabulate(data::RealVector, midpoints::R, weights::Weights=default_weights(data)) where R<:AbstractRange
+function tabulate(data::AbstractVector{<:Real}, midpoints::R, weights::Weights=default_weights(data)) where R<:AbstractRange
     npoints = length(midpoints)
     s = step(midpoints)
 
@@ -147,26 +147,26 @@ function conv(k::UnivariateKDE, dist::UnivariateDistribution)
 end
 
 # main kde interface methods
-function kde(data::RealVector, weights::Weights, midpoints::R, dist::UnivariateDistribution) where R<:AbstractRange
+function kde(data::AbstractVector{<:Real}, weights::Weights, midpoints::R, dist::UnivariateDistribution) where R<:AbstractRange
     k = tabulate(data, midpoints, weights)
     conv(k,dist)
 end
 
-function kde(data::RealVector, dist::UnivariateDistribution;
+function kde(data::AbstractVector{<:Real}, dist::UnivariateDistribution;
              boundary::Tuple{Real,Real}=kde_boundary(data,std(dist)), npoints::Int=2048, weights=default_weights(data))
 
     midpoints = kde_range(boundary,npoints)
     kde(data,weights,midpoints,dist)
 end
 
-function kde(data::RealVector, midpoints::R;
+function kde(data::AbstractVector{<:Real}, midpoints::R;
              bandwidth=default_bandwidth(data), kernel=Normal, weights=default_weights(data)) where R<:AbstractRange
     bandwidth > 0.0 || error("Bandwidth must be positive")
     dist = kernel_dist(kernel,bandwidth)
     kde(data,weights,midpoints,dist)
 end
 
-function kde(data::RealVector; bandwidth=default_bandwidth(data), kernel=Normal,
+function kde(data::AbstractVector{<:Real}; bandwidth=default_bandwidth(data), kernel=Normal,
              npoints::Int=2048, boundary::Tuple{Real,Real}=kde_boundary(data,bandwidth), weights=default_weights(data))
     bandwidth > 0.0 || error("Bandwidth must be positive")
     dist = kernel_dist(kernel,bandwidth)
@@ -248,7 +248,7 @@ end
 #   B. W. Silverman (1986)
 #   sections 3.4.3 (pp. 48-52) and 3.5 (pp. 61-66)
 
-function kde_lscv(data::RealVector, midpoints::R;
+function kde_lscv(data::AbstractVector{<:Real}, midpoints::R;
                   kernel=Normal,
                   bandwidth_range::Tuple{Real,Real}=(h=default_bandwidth(data); (0.25*h,1.5*h)),
                   weights=default_weights(data)) where R<:AbstractRange
@@ -289,7 +289,7 @@ function kde_lscv(data::RealVector, midpoints::R;
     UnivariateKDE(k.x, dens)
 end
 
-function kde_lscv(data::RealVector;
+function kde_lscv(data::AbstractVector{<:Real};
                   boundary::Tuple{Real,Real}=kde_boundary(data,default_bandwidth(data)),
                   npoints::Int=2048,
                   kernel=Normal,

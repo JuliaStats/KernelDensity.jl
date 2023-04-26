@@ -38,12 +38,12 @@ function kernel_dist(d::Tuple{DataTypeOrUnionAll, DataTypeOrUnionAll}, w::Tuple{
 end
 
 # TODO: there are probably better choices.
-function default_bandwidth(data::Tuple{RealVector,RealVector})
+function default_bandwidth(data::Tuple{AbstractVector{<:Real},AbstractVector{<:Real}})
     default_bandwidth(data[1]), default_bandwidth(data[2])
 end
 
 # tabulate data for kde
-function tabulate(data::Tuple{RealVector, RealVector}, midpoints::Tuple{Rx, Ry},
+function tabulate(data::Tuple{AbstractVector{<:Real}, AbstractVector{<:Real}}, midpoints::Tuple{Rx, Ry},
         weights::Weights = default_weights(data)) where {Rx<:AbstractRange,Ry<:AbstractRange}
     xdata, ydata = data
     ndata = length(xdata)
@@ -103,15 +103,15 @@ end
 
 const BivariateDistribution = Union{MultivariateDistribution,Tuple{UnivariateDistribution,UnivariateDistribution}}
 
-default_weights(data::Tuple{RealVector, RealVector}) = UniformWeights(length(data[1]))
+default_weights(data::Tuple{AbstractVector{<:Real}, AbstractVector{<:Real}}) = UniformWeights(length(data[1]))
 
-function kde(data::Tuple{RealVector, RealVector}, weights::Weights, midpoints::Tuple{Rx, Ry},
+function kde(data::Tuple{AbstractVector{<:Real}, AbstractVector{<:Real}}, weights::Weights, midpoints::Tuple{Rx, Ry},
         dist::BivariateDistribution) where {Rx<:AbstractRange,Ry<:AbstractRange}
     k = tabulate(data, midpoints, weights)
     conv(k,dist)
 end
 
-function kde(data::Tuple{RealVector, RealVector}, dist::BivariateDistribution;
+function kde(data::Tuple{AbstractVector{<:Real}, AbstractVector{<:Real}}, dist::BivariateDistribution;
              boundary::Tuple{Tuple{Real,Real}, Tuple{Real,Real}} = (kde_boundary(data[1],std(dist[1])),
                                                      kde_boundary(data[2],std(dist[2]))),
              npoints::Tuple{Int,Int}=(256,256),
@@ -123,7 +123,7 @@ function kde(data::Tuple{RealVector, RealVector}, dist::BivariateDistribution;
     kde(data,weights,(xmid,ymid),dist)
 end
 
-function kde(data::Tuple{RealVector, RealVector}, midpoints::Tuple{Rx, Ry};
+function kde(data::Tuple{AbstractVector{<:Real}, AbstractVector{<:Real}}, midpoints::Tuple{Rx, Ry};
              bandwidth=default_bandwidth(data), kernel=Normal,
              weights::Weights = default_weights(data)) where {Rx<:AbstractRange,Ry<:AbstractRange}
 
@@ -131,7 +131,7 @@ function kde(data::Tuple{RealVector, RealVector}, midpoints::Tuple{Rx, Ry};
     kde(data,weights,midpoints,dist)
 end
 
-function kde(data::Tuple{RealVector, RealVector};
+function kde(data::Tuple{AbstractVector{<:Real}, AbstractVector{<:Real}};
              bandwidth=default_bandwidth(data),
              kernel=Normal,
              boundary::Tuple{Tuple{Real,Real}, Tuple{Real,Real}} = (kde_boundary(data[1],bandwidth[1]),
@@ -147,7 +147,7 @@ function kde(data::Tuple{RealVector, RealVector};
 end
 
 # matrix data
-function kde(data::RealMatrix,args...;kwargs...)
+function kde(data::AbstractMatrix{<:Real},args...;kwargs...)
     size(data,2) == 2 || error("Can only construct KDE from matrices with 2 columns.")
     kde((data[:,1],data[:,2]),args...;kwargs...)
 end

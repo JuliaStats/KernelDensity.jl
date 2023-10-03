@@ -1,6 +1,7 @@
 using Test
 using Distributions
 using KernelDensity
+using FFTW
 
 import KernelDensity: kernel_dist, default_bandwidth, kde_boundary, kde_range, tabulate
 

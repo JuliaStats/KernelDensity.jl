@@ -1,5 +1,6 @@
 using Test
 using KernelDensity
+using FFTW
 
 X = randn(100)
 Y = randn(100)

@@ -7,6 +7,15 @@ Kernel density estimators for Julia.
 
 ## Usage
 
+### Prerequisite
+
+The kernel density estimates are computed with fast Fourier transforms (FFTs) internally using the [AbstractFFTs.jl](https://github.com/JuliaMath/AbstractFFTs.jl) interface.
+You have to load a backend such as [FFTW.jl](https://github.com/JuliaMath/FFTW.jl) that implements this interface:
+
+```julia
+using FFTW
+```
+
 ### Univariate
 The main accessor function is `kde`:
 

@@ -150,8 +150,8 @@ end
 
 """
 
-	kde(data; [options])
-	kde((xdata, ydata); [options])
+	kde(data; kwargs...)
+	kde((xdata, ydata); kwargs...)
 	
 Kernel density estimation method. Returns 1D or 2D KDE object. The grid used and the values of the estimated density can be obtained from fields `.x` and `.density` respectively. To obtain kde values at points different than the initial grid use the `pdf` method.
 

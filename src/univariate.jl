@@ -13,7 +13,7 @@ sum(density) * step(x) ≈ 1
 
 $(FIELDS)
 """
-mutable struct UnivariateKDE{R<:AbstractRange} <: AbstractKDE
+struct UnivariateKDE{R<:AbstractRange} <: AbstractKDE
     "Gridpoints for evaluating the density."
     x::R
     "Kernel density at corresponding gridpoints `x`."

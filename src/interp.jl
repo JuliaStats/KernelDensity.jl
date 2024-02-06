@@ -1,11 +1,10 @@
 import Interpolations: interpolate, scale
 
-mutable struct InterpKDE{K,I} <: AbstractKDE
+struct InterpKDE{K,I} <: AbstractKDE
     kde::K
     itp::I
     InterpKDE{K,I}(kde::K, itp::I) where {K,I} = new{K,I}(kde, itp)
 end
-
 
 function InterpKDE(kde::UnivariateKDE, opts...)
     itp_u = interpolate(kde.density, opts...)

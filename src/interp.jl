@@ -34,7 +34,7 @@ pdf(ik::InterpKDE, M::AbstractArray{<:Real, N}) where N = pdf.(ik,eachslice(M, d
 
 # 1 dimension
 pdf(k::UnivariateKDE,x) = pdf(InterpKDE(k),x)
-Base.broadcasted(::typeof(pdf),k::UnivariateKDE,xs) = Base.broadcasted(InterpKDE(k).itp, xs)
+Base.Broadcast.broadcasted(::typeof(pdf),k::UnivariateKDE,xs) = Base.Broadcast.broadcasted(InterpKDE(k).itp, xs)
 
 # 2 dimensions
 pdf(k::BivariateKDE,x,y) = pdf(InterpKDE(k),x,y)

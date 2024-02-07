@@ -35,7 +35,7 @@ k = kde(([0.0],[0.0]), bandwidth=(1.0, 1.0))
     k2d = kde(([-1., 1.], [0., 1.]))
     ik2d = InterpKDE(k2d)
 
-    @test pdf(k2d, [0.5, 0.1]) ≈ pdf(k2d, 0.5, 0.1) ≈ pdf(ik2d, 0.5, 0.1)
+    @test pdf(k2d, [0.5, 0.1]) ≈ pdf(k2d, [0.5; 0.1]) ≈ pdf(k2d, 0.5, 0.1) ≈ pdf(ik2d, 0.5, 0.1)
     @test pdf(k2d, [0.5 1.; 0.1 1.]) ≈ [pdf(ik2d, 0.5, 0.1), pdf(ik2d, 1., 1.)]
     @test pdf(k2d, [0.5; 1. ;;; 0.1; 1.]) ≈ [pdf(ik2d, 0.5, 1.) pdf(ik2d, 0.1, 1.)]
 end

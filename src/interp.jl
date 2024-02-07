@@ -25,14 +25,18 @@ InterpKDE(kde::BivariateKDE) = InterpKDE(kde::BivariateKDE, BSpline(Quadratic(Li
 
 pdf(ik::InterpKDE,x::Real...) = ik.itp(x...)
 
-# interface implementation
+# pdf interface implementation
 # it should be consistent with Distributions.pdf
 
+# 1 dimension
 pdf(k::UnivariateKDE,x) = pdf(InterpKDE(k),x)
 Base.broadcasted(::typeof(pdf),k::UnivariateKDE,xs) = Base.broadcasted(InterpKDE(k).itp, xs)
 
+# 2 dimensions
 pdf(k::BivariateKDE,x,y) = pdf(InterpKDE(k),x,y)
 pdf(ik::InterpKDE,xs::AbstractVector,ys::AbstractVector) = ik.itp.(xs,ys')
 pdf(k::BivariateKDE, M) = pdf(InterpKDE(k),M)
-pdf(ik::InterpKDE, V::AbstractVector) = ik.itp(V[1],V[2])
 pdf(ik::InterpKDE, M::AbstractArray{<:Real, N}) where N = pdf.(ik,eachslice(M, dims=ntuple(i->i+1, N-1)) )
+
+# any dimension
+pdf(ik::InterpKDE, V::AbstractVector) = ik.itp(V...)

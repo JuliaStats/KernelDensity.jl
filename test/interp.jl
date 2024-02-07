@@ -13,7 +13,7 @@ k = kde((X,Y))
 # Try to evaluate the KDE outside the interpolation domain
 # The KDE is allowed to be zero, but it should not be greater than the exact solution
 k = kde([0.0], bandwidth=1.0)
-@test pdf(k, k.x) ≈ k.density
+@test pdf.(k, k.x) ≈ k.density
 @test pdf(k, -10.0) ≤ pdf(Normal(), -10.0)
 @test pdf(k, +10.0) ≤ pdf(Normal(), +10.0)
 

@@ -2,3 +2,4 @@ examples/.ipynb_checkpoints/*
 Manifest.toml
 .vscode/settings.json
 tmp.jl
+Project.toml

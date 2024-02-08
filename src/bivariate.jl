@@ -19,7 +19,7 @@ mutable struct BivariateKDE{Rx<:AbstractRange,Ry<:AbstractRange} <: AbstractKDE
     "Second coordinate of gridpoints for evaluating the density."
     y::Ry
     "Kernel density at corresponding gridpoints `Tuple.(x, permutedims(y))`."
-    density::Matrix{Float64}
+    density::AbstractMatrix{}
 end
 
 function kernel_dist(::Type{D},w::Tuple{Real,Real}) where D<:UnivariateDistribution
@@ -54,7 +54,7 @@ function tabulate(data::Tuple{AbstractVector{<:Real}, AbstractVector{<:Real}}, m
     sx, sy = step(xmid), step(ymid)
 
     # Set up a grid for discretized data
-    grid = zeros(Float64, nx, ny)
+    grid = zeros(eltype(xdata),nx,ny)
     ainc = 1.0 / (sum(weights)*(sx*sy)^2)
 
     # weighted discretization (cf. Jones and Lotwick)
@@ -91,11 +91,12 @@ function conv(k::BivariateKDE, dist::Tuple{UnivariateDistribution,UnivariateDist
             ft[i+1,j+1] *= cf(distx,i*cx)*cf(disty,min(j,Ky-j)*cy)
         end
     end
-    dens = irfft(ft, Kx)
+    # i = 0:size(ft,1)-1
+    # j = 0:size(ft,2)-1
+    # ft = ft .* ( cf.(distx,i*cx) * cf.(disty,min.(j,Ky-j)*cy)' )
 
-    for i = 1:length(dens)
-        dens[i] = max(0.0,dens[i])
-    end
+    dens = irfft(ft, Kx)
+    dens = max.(0.0,dens)
 
     # Invert the Fourier transform to get the KDE
     BivariateKDE(k.x, k.y, dens)

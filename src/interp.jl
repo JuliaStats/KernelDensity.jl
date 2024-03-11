@@ -1,11 +1,11 @@
 import Interpolations: interpolate, scale
 
+
 mutable struct InterpKDE{K,I} <: AbstractKDE
     kde::K
     itp::I
     InterpKDE{K,I}(kde::K, itp::I) where {K,I} = new{K,I}(kde, itp)
 end
-
 
 function InterpKDE(kde::UnivariateKDE, opts...)
     itp_u = interpolate(kde.density, opts...)
@@ -24,9 +24,20 @@ function InterpKDE(kde::BivariateKDE, opts...)
 end
 InterpKDE(kde::BivariateKDE) = InterpKDE(kde::BivariateKDE, BSpline(Quadratic(Line(OnGrid()))))
 
-pdf(ik::InterpKDE,x::Real...) = ik.itp(x...)
-pdf(ik::InterpKDE,xs::AbstractVector) = [ik.itp(x) for x in xs]
-pdf(ik::InterpKDE,xs::AbstractVector,ys::AbstractVector) = [ik.itp(x,y) for x in xs, y in ys]
 
+# pdf interface implementation
+# it should be consistent with Distributions.pdf
+
+# any dimension
+pdf(ik::InterpKDE,x::Real...) = ik.itp(x...)
+pdf(ik::InterpKDE, V::AbstractVector) = ik.itp(V...)
+pdf(ik::InterpKDE, M::AbstractArray{<:Real, N}) where N = reshape(mapslices(v->pdf(ik, v), M, dims = 1), size(M)[2:end])
+
+# 1 dimension
 pdf(k::UnivariateKDE,x) = pdf(InterpKDE(k),x)
+Base.Broadcast.broadcasted(::typeof(pdf),k::UnivariateKDE,xs) = Base.Broadcast.broadcasted(InterpKDE(k).itp, xs)
+
+# 2 dimensions
 pdf(k::BivariateKDE,x,y) = pdf(InterpKDE(k),x,y)
+pdf(ik::InterpKDE,xs::AbstractVector,ys::AbstractVector) = ik.itp.(xs,ys')
+pdf(k::BivariateKDE, M) = pdf(InterpKDE(k),M)

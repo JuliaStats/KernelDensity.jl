@@ -4,6 +4,7 @@ authors = ["Simon Byrne and various contributors"]
 version = "0.6.8"
 
 [deps]
+Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
@@ -17,6 +18,7 @@ FFTW = "1"
 Interpolations = "0.9, 0.10, 0.11, 0.12, 0.13, 0.14, 0.15"
 StatsBase = "0.33, 0.34"
 julia = "1"
+Compat = "3.22, 4"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

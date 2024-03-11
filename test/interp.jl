@@ -39,5 +39,12 @@ end
 
     @test pdf(k2d, [0.5, 0.1]) ≈ pdf(k2d, [0.5; 0.1]) ≈ pdf(k2d, 0.5, 0.1) ≈ pdf(ik2d, 0.5, 0.1)
     @test pdf(k2d, [0.5 1.; 0.1 1.]) ≈ [pdf(ik2d, 0.5, 0.1), pdf(ik2d, 1., 1.)]
-    @test pdf(k2d, [0.5; 1. ;;; 0.1; 1.]) ≈ [pdf(ik2d, 0.5, 1.) pdf(ik2d, 0.1, 1.)]
+    @static if VERSION >= v"1.1"
+        @test pdf(k2d, [0.5; 1. ;;; 0.1; 1.]) ≈ [pdf(ik2d, 0.5, 1.) pdf(ik2d, 0.1, 1.)]
+    else
+        M = zeros(2, 1, 2)
+        M[:,1,1] .= [0.5, 1]
+        M[:,1,2] .= [0.1, 1]
+        @test pdf(k2d, M) ≈ [pdf(ik2d, 0.5, 1.) pdf(ik2d, 0.1, 1.)]
+    end
 end

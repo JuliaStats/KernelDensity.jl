@@ -1,4 +1,4 @@
-import Compat: @compat
+import Compat: eachslice
 import Interpolations: interpolate, scale
 
 
@@ -32,7 +32,7 @@ InterpKDE(kde::BivariateKDE) = InterpKDE(kde::BivariateKDE, BSpline(Quadratic(Li
 # any dimension
 pdf(ik::InterpKDE,x::Real...) = ik.itp(x...)
 pdf(ik::InterpKDE, V::AbstractVector) = ik.itp(V...)
-pdf(ik::InterpKDE, M::AbstractArray{<:Real, N}) where N = @compat pdf.(ik,eachslice(M, dims=ntuple(i->i+1, N-1)) )
+pdf(ik::InterpKDE, M::AbstractArray{<:Real, N}) where N = pdf.(ik,eachslice(M, dims=ntuple(i->i+1, N-1)) )
 
 # 1 dimension
 pdf(k::UnivariateKDE,x) = pdf(InterpKDE(k),x)

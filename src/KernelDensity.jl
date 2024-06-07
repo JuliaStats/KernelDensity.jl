@@ -12,6 +12,8 @@ export kde, kde_lscv, UnivariateKDE, BivariateKDE, InterpKDE, pdf
 
 abstract type AbstractKDE end
 
+Base.broadcastable(x::AbstractKDE) = Ref(x)
+
 include("univariate.jl")
 include("bivariate.jl")
 include("interp.jl")

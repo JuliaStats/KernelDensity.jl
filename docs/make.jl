@@ -7,4 +7,5 @@ makedocs(
 )
 deploydocs(
     repo = "github.com/JuliaStats/KernelDensity.jl.git",
+    push_preview = true,
 )

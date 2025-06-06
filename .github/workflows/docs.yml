@@ -1,0 +1,20 @@
+name: Documentation
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+    tags: '*'
+jobs:
+   documenter:
+     name: Build Documentation
+     runs-on: ubuntu-latest
+     steps:
+       - uses: actions/checkout@v4
+       - uses: julia-actions/setup-julia@v2
+         with:
+           version: '1'
+       - uses: julia-actions/cache@v2
+       - uses: julia-actions/julia-docdeploy@v1
+         env:
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

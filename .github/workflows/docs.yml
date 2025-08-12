@@ -1,4 +1,7 @@
 name: Documentation
+permissions:
+  actions: write
+  contents: read
 on:
   pull_request:
     branches: [master]

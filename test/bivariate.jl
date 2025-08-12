@@ -64,3 +64,8 @@ end
 k11 = kde([0.0 0.0; 1.0 1.0], (r,r), bandwidth=(1,1), weights=[0,1])
 k12 = kde([1.0 1.0], (r,r), bandwidth=(1,1))
 @test k11.density ≈ k12.density
+
+@testset "broadcasting. Issue 63" begin
+    xyvals = [0.0, 1.0]
+    @test pdf.(k11, xyvals, xyvals) == map(((x, y,)) -> pdf(k11, x, y), xyvals, xyvals)
+end

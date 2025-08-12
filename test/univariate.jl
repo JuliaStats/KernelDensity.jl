@@ -69,3 +69,7 @@ abs_tol = eps(Float64)
 
 minimizer = @inferred KernelDensity.optimize(x -> (x - 1)^2, 0, 2)
 @test abs(minimizer - 1) <= abs_tol + rel_tol * abs(minimizer)
+
+@testset "broadcasting" begin
+    @test pdf(k11, [0.0, 1.0]) == map(t -> pdf(k11, t), [0.0, 1.0])
+end

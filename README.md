@@ -1,7 +1,8 @@
 # KernelDensity.jl
 
 [![CI](https://github.com/JuliaStats/KernelDensity.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/JuliaStats/KernelDensity.jl/actions/workflows/CI.yml)
-[![Coverage Status](https://coveralls.io/repos/github/JuliaStats/KernelDensity.jl/badge.svg)](https://coveralls.io/github/JuliaStats/KernelDensity.jl)
+[![codecov](https://codecov.io/github/JuliaStats/KernelDensity.jl/graph/badge.svg?token=Pvge67IhU8)](https://codecov.io/github/JuliaStats/KernelDensity.jl)
+[![Stable Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://juliastats.org/KernelDensity.jl/stable/)
 
 Kernel density estimators for Julia.
 

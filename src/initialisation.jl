@@ -65,8 +65,8 @@ struct Silverman<:BandwidthMethod end
 
 # implementing common interface of AbstractMixtureModel
 ncomponents(ke::KernelEstimate) = size(ke.data)[2]
-component(ke::UnivariateKernelEstimate, k) = ke.kernel - ke.data[1,k]
-component(ke::MultivariateKernelEstimate, k) = ke.kernel - ke.data[:,k]
+component(ke::UnivariateKernelEstimate, k) = ke.kernel + ke.data[1,k]
+component(ke::MultivariateKernelEstimate, k) = ke.kernel + ke.data[:,k]
 probs(ke::KernelEstimate) = probs(ke.prior)
 
 

@@ -63,7 +63,7 @@ end
 function pdf(ke::UnivariateKernelEstimate, x::Real, method::Symbol)
     if method == :precomputed
         den = ke.precomputedPDF
-        den === nothing || error("PDF must be first precomputed.")
+        den === nothing && error("PDF must be first precomputed.")
         itp_u = interpolate(den.values, BSpline(Quadratic(Line(OnGrid()))))
         itp = scale(itp_u, den.xs)
         etp = extrapolate(itp, 0.)
@@ -79,7 +79,7 @@ end
 function Base.Broadcast.broadcasted(::typeof(pdf), ke::UnivariateKernelEstimate, xs, method::Symbol)
         if method == :precomputed
             den = ke.precomputedPDF
-            den === nothing || error("PDF must be first precomputed.")
+            den === nothing && error("PDF must be first precomputed.")
             itp_u = interpolate(den.values, BSpline(Quadratic(Line(OnGrid()))))
             itp = scale(itp_u, den.xs)
             etp = extrapolate(itp, 0.)

@@ -1,9 +1,3 @@
-# use scale instead of std
-# LocationScale ?
-# you can use support to detect 
-# argument for boundary?
-# give any kernel?
-# fix cosine distribution
 
 using Plots
 
@@ -31,7 +25,6 @@ k1 = kernel_estimate(X, 0.2, Normal)
 k2 = kernel_estimate(X, Silverman(), Epanechnikov)
 
 k3 = kernel_estimate(X, LSCV(), Epanechnikov)
-
 
 precompute!(k2,2048,(-5,5))
 

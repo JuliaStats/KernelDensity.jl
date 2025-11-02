@@ -28,6 +28,7 @@ end
 @kwdef struct LSCV <: BandwidthMethod
     nPoints::Int = 2048
     initBandwidth::Float64 = NaN
+    boundary::Tuple{Float64,Float64} = (NaN,NaN)
 end
 
 # Select bandwidth using least-squares cross validation, from:
@@ -36,10 +37,18 @@ end
 #   sections 3.4.3 (pp. 48-52) and 3.5 (pp. 61-66)
 function get_bandwidth(lscv::LSCV, data::AbstractVector{<:Real}, kernelType = Normal, prior = DiscreteUniform(1,length(data)))
     K = lscv.nPoints
-    initBandwidth::Float64 = isnan(lscv.initBandwidth) ? get_bandwidth(Silverman(), data)[1] : lscv.initBandwidth
+    initBandwidth = isnan(lscv.initBandwidth) ? get_bandwidth(Silverman(), data)[1] : lscv.initBandwidth
+    boundaryLow, boundaryHigh = lscv.boundary
+    if isnan(boundaryLow) || isnan(boundaryHigh)
+        lo, hi = extrema(data)
+        boundaryLow = isnan(boundaryLow) ? lo - 4.0*initBandwidth : boundaryLow
+        boundaryHigh = isnan(boundaryHigh) ? hi + 4.0*initBandwidth : boundaryHigh
+    end
+
     ndata = length(data)
-    lo, hi = extrema(data)
-    midpoints = range(lo - 4.0*initBandwidth, hi + 4.0*initBandwidth, K)
+    
+    midpoints = range(boundaryLow, boundaryHigh, K)
+
     initDen = tabulate(data, midpoints, prior).values
 
     # the ft here is K/ba*sqrt(2pi) * u(s), it is K times the Yl in Silverman's book

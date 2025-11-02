@@ -28,5 +28,6 @@ include("interp.jl")
 
 include("initialisation.jl")
 include("bandwidth_selection.jl")
+include("feature_computation.jl")
 
 end

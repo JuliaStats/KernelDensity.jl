@@ -29,7 +29,7 @@ mutable struct KernelEstimate{VF<:VariateForm, VS<:ValueSupport, KernelType<:Dis
     const bandwidth::Float64
     precomputedPDF::Union{Nothing, PDF}
 
-    # these guarantee type agreement and nothing more
+    # these constructors guarantee type agreement
     function KernelEstimate(data::Matrix{Float64}, prior::PriorDist, kernel::KernelType, bandwidth::Float64, precomputedPDF::PDF) where {
             PriorDist<:UnivariateDistribution{Discrete},
             KernelType <: Distribution,
@@ -41,8 +41,10 @@ mutable struct KernelEstimate{VF<:VariateForm, VS<:ValueSupport, KernelType<:Dis
             PriorDist<:UnivariateDistribution{Discrete},
             KernelType <: Distribution}
         VF, VS = supertype(KernelType).parameters
+
+        # the default PDF type is based on Float64 and Int
         R = Base.return_types(range,(Float64,Float64,Int))[1] 
-        PDF = DiscretisedPDF{size(data)[1],R,eltype(data)}
+        PDF = DiscretisedPDF{size(data)[1],R,Float64}
         new{VF,VS,KernelType,PriorDist,PDF}(data, prior, kernel, bandwidth, nothing)
     end
 
@@ -50,6 +52,11 @@ end
 
 UnivariateKernelEstimate{VS, K, P, PDF} = KernelEstimate{Univariate, VS, K, P, PDF}
 MultivariateKernelEstimate{VS, K, P, PDF} = KernelEstimate{Multivariate, VS, K, P, PDF}
+
+# KernelEstimate is a scalar
+Base.broadcastable(ke::KernelEstimate) = Ref(ke)
+
+# It is possible to add linear transformations a*ke + b
 
 abstract type BandwidthMethod end
 
@@ -78,6 +85,7 @@ function kernel_estimate(data::Vector{<:Real}, method::BandwidthMethod = Silverm
     KernelEstimate(reshape(data,1,length(data)), prior, kernel, bandwidth, kde)
 end
 
+# Can add kernel_estimate which takes prior as a vector. 
 
 # construct kernel from bandwidth
 kernel_dist(::Type{Normal}, bandwidth::Real) = Normal(0.0, bandwidth)
@@ -85,57 +93,3 @@ kernel_dist(::Type{Uniform}, bandwidth::Real) = Uniform(-√3*bandwidth, √3*ba
 
 const LocationScale = Union{Laplace, Logistic, SymTriangularDist, Cosine, Epanechnikov}
 kernel_dist(::Type{D},w::Real) where {D<:LocationScale} = D(0.0, w/std(D(0.0,1.0)))
-
-# 1D precomputation 
-
-function precompute!(ke::UnivariateKernelEstimate, nPoints::Int = 2048)
-    lo, hi = extrema(ke.data)
-    midpoints = range(lo - 4.0*ke.bandwidth, hi + 4.0*ke.bandwidth, nPoints)
-    ke.precomputedPDF = conv(tabulate(vec(ke.data), midpoints, ke.prior), ke.kernel)
-end
-
-function tabulate(data::AbstractVector{<:Real}, midpoints::AbstractRange, prior::UnivariateDistribution{Discrete})
-    npoints = length(midpoints)
-    s = step(midpoints)
-
-    # Set up a grid for discretized data
-    grid = zeros(Float64, npoints)
-    ainc = 1.0 / (s*s)
-
-    # weighted discretization (cf. Jones and Lotwick)
-    for (i,x) in enumerate(data)
-        k = searchsortedfirst(midpoints,x)
-        j = k-1
-        if 1 <= j <= npoints-1
-            grid[j] += (midpoints[k]-x)*ainc*pdf(prior,i)
-            grid[k] += (x-midpoints[j])*ainc*pdf(prior,i)
-        end
-    end
-
-    return DiscretisedPDF(grid, midpoints)
-end
-
-function conv(den::DiscretisedPDF{1, R, T}, kernel::UnivariateDistribution) where {T<:Real,R<:AbstractRange}
-    # Transform to Fourier basis
-    K = length(den.values)
-    ft = rfft(den.values)
-
-    # Convolve fft with characteristic function of kernel
-    # empirical cf
-    #  = \sum_{n=1}^N e^{i*t*X_n} / N
-    #  = \sum_{k=0}^K e^{i*t*(a+k*s)} N_k / N
-    #  = e^{i*t*a} \sum_{k=0}^K e^{-2pi*i*k*(-t*s*K/2pi)/K} N_k / N
-    #  = A * fft(N_k/N)[-t*s*K/2pi + 1]
-    c = -twoπ/(step(den.xs)*K)
-    for j in 0:length(ft)-1
-        ft[j+1] *= cf(kernel,j*c)
-    end
-
-    # Invert the Fourier transform to get the KDE
-    convolved = irfft(ft, K)
-
-    # fix rounding error.
-    convolved .= max.(0., convolved)
-
-    DiscretisedPDF(convolved, den.xs)
-end

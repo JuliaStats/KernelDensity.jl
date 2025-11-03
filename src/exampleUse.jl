@@ -37,6 +37,7 @@ cdf(k2, 1)
 mean(k2), var(k2)
 quantile(k2, 0.9)
 
+rand(k2)
 
 kde = k2.precomputedPDF
 plot(kde.xs,kde.values,label = "precomputed")

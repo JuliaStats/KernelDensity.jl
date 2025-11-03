@@ -18,7 +18,7 @@ probs(k1)
 
 ##
 
-X = randn(10^5)
+X = randn(10^3)
 
 k1 = kernel_estimate(X, 0.2, Normal)
 
@@ -39,6 +39,9 @@ quantile(k2, 0.9)
 
 
 kde = k2.precomputedPDF
-plot(kde.xs,kde.values)
+plot(kde.xs,kde.values,label = "precomputed")
+
+xs = LinRange(-4,4,100)
+plot!(xs,pdf.(k2, xs),label = "naive")
 
 

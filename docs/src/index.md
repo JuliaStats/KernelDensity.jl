@@ -1,8 +1,8 @@
-# KernelDensity.jl
+```@meta
+CurrentModule = KernelDensity
+```
 
-[![CI](https://github.com/JuliaStats/KernelDensity.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/JuliaStats/KernelDensity.jl/actions/workflows/CI.yml)
-[![codecov](https://codecov.io/github/JuliaStats/KernelDensity.jl/graph/badge.svg?token=Pvge67IhU8)](https://codecov.io/github/JuliaStats/KernelDensity.jl)
-[![Stable Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://juliastats.org/KernelDensity.jl/stable/)
+# KernelDensity.jl
 
 Kernel density estimators for Julia.
 
@@ -11,7 +11,7 @@ Kernel density estimators for Julia.
 ### Univariate
 The main accessor function is `kde`:
 
-```
+```julia
 U = kde(data)
 ```
 
@@ -42,19 +42,19 @@ least-squares cross validation. It accepts the above keyword arguments, except
 
 
 There are also some slightly more advanced interfaces:
-```
+```julia
 kde(data, midpoints::R) where R<:AbstractRange
 ```
 allows specifying the internal grid to use. Optional keyword arguments are
 `kernel` and `bandwidth`.
 
-```
+```julia
 kde(data, dist::Distribution)
 ```
 allows specifying the exact distribution to use as the kernel. Optional
 keyword arguments are `boundary` and `npoints`.
 
-```
+```julia
 kde(data, midpoints::R, dist::Distribution) where R<:AbstractRange
 ```
 allows specifying both the distribution and grid.
@@ -63,11 +63,11 @@ allows specifying both the distribution and grid.
 
 The usage mirrors that of the univariate case, except that `data` is now
 either a tuple of vectors
-```
+```julia
 B = kde((xdata, ydata))
 ```
 or a matrix with two columns
-```
+```julia
 B = kde(datamatrix)
 ```
 Similarly, the optional arguments all now take tuple arguments:
@@ -84,7 +84,7 @@ intermediate values can be interpolated using the
 [Interpolations.jl](https://github.com/tlycken/Interpolations.jl) package via the `pdf` method
 (extended from Distributions.jl).
 
-```
+```julia
 pdf(k::UnivariateKDE, x)
 pdf(k::BivariateKDE, x, y)
 ```
@@ -94,9 +94,15 @@ where `x` and `y` are real numbers or arrays.
 If you are making multiple calls to `pdf`, it will be more efficient to
 construct an intermediate `InterpKDE` to store the interpolation structure:
 
-```
+```julia
 ik = InterpKDE(k)
 pdf(ik, x)
 ```
 
 `InterpKDE` will pass any extra arguments to `interpolate`.
+
+## API Reference
+
+```@autodocs
+Modules = [KernelDensity]
+```

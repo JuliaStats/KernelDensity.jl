@@ -1,6 +1,3 @@
 examples/.ipynb_checkpoints/*
 Manifest.toml
-.vscode/settings.json
-tmp.jl
-Project.toml
-interp.jl
+docs/build/

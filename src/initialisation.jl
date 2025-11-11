@@ -21,12 +21,34 @@ function Base.getproperty(d::DiscretisedPDF, prop::Symbol)
 end
 Base.propertynames(::DiscretisedPDF) = (:values, :labels, :xs, :ys, :zs)
 
-if VERSION >= v"1.8" # for backwards compatibility no const fields in < v1.8
-    include("ke-1.8.jl")
-else
-    include("ke-1.6.jl")
-end
+# note: in v1.8+ 4 first fields can be made constant using const
+struct KernelEstimate{VF<:VariateForm, VS<:ValueSupport, KernelType<:Distribution, PriorDist<:UnivariateDistribution{Discrete}, PDF<:DiscretisedPDF} <: AbstractMixtureModel{VF, VS, KernelType}
+    data::Matrix{Float64}
+    prior::PriorDist
+    kernel::KernelType
+    bandwidth::Float64
+    precomputedPDF::Base.RefValue{PDF} # the value it is mutable
 
+    # these constructors guarantee type agreement
+    function KernelEstimate(data::Matrix{Float64}, prior::PriorDist, kernel::KernelType, bandwidth::Float64, precomputedPDF::PDF) where {
+            PriorDist<:UnivariateDistribution{Discrete},
+            KernelType <: Distribution,
+            PDF <: DiscretisedPDF}
+        VF, VS = supertype(KernelType).parameters
+        new{VF,VS,KernelType,PriorDist,PDF}(data, prior, kernel, bandwidth, Ref(precomputedPDF))
+    end
+    function KernelEstimate(data::Matrix{Float64}, prior::PriorDist, kernel::KernelType, bandwidth::Float64, ::Nothing) where {
+            PriorDist<:UnivariateDistribution{Discrete},
+            KernelType <: Distribution}
+        VF, VS = supertype(KernelType).parameters
+
+        # the default PDF type is based on Float64 and Int
+        R = Base.return_types(range,(Float64,Float64,Int))[1] 
+        PDF = DiscretisedPDF{size(data)[1],R,Float64}
+        new{VF,VS,KernelType,PriorDist,PDF}(data, prior, kernel, bandwidth, Ref{PDF}())
+    end
+
+end
 
 UnivariateKernelEstimate{VS, K, P, PDF} = KernelEstimate{Univariate, VS, K, P, PDF}
 MultivariateKernelEstimate{VS, K, P, PDF} = KernelEstimate{Multivariate, VS, K, P, PDF}

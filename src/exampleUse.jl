@@ -39,7 +39,7 @@ quantile(k2, 0.9)
 
 rand(k2)
 
-kde = k2.precomputedPDF
+kde = k2.precomputedPDF[] # simpler access can be added
 plot(kde.xs,kde.values,label = "precomputed")
 
 xs = LinRange(-4,4,100)

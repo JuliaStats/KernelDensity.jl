@@ -7,7 +7,7 @@ function precompute!(ke::UnivariateKernelEstimate, nPoints::Integer = 2048,
     # find the element type of range in ke.precomputedPDF
     T = eltype(typeof(ke).parameters[5].parameters[2])
     midpoints = range(T(boundary[1]), T(boundary[2]), Int(nPoints))
-    ke.precomputedPDF = conv(tabulate(vec(ke.data), midpoints, ke.prior), ke.kernel)
+    ke.precomputedPDF[] = conv(tabulate(vec(ke.data), midpoints, ke.prior), ke.kernel)
 end
 
 function tabulate(data::AbstractVector{<:Real}, midpoints::AbstractRange, prior::UnivariateDistribution{Discrete})
@@ -62,7 +62,7 @@ end
 
 function pdf(ke::UnivariateKernelEstimate, x::Real, method::Symbol)
     if method == :precomputed
-        den = ke.precomputedPDF
+        den = ke.precomputedPDF[]
         den === nothing && error("PDF must be first precomputed.")
         itp_u = interpolate(den.values, BSpline(Quadratic(Line(OnGrid()))))
         itp = scale(itp_u, den.xs)
@@ -78,7 +78,7 @@ end
 # custom broadcast prepares for interpolation only once for all xs
 function Base.Broadcast.broadcasted(::typeof(pdf), ke::UnivariateKernelEstimate, xs, method::Symbol)
         if method == :precomputed
-            den = ke.precomputedPDF
+            den = ke.precomputedPDF[]
             den === nothing && error("PDF must be first precomputed.")
             itp_u = interpolate(den.values, BSpline(Quadratic(Line(OnGrid()))))
             itp = scale(itp_u, den.xs)

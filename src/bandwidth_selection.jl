@@ -25,7 +25,7 @@ function get_bandwidth(::Silverman, data::AbstractVector{<:Real}, kernelType = N
     return alpha * width * ndata^(-0.2), nothing
 end
 
-@kwdef struct LSCV <: BandwidthMethod
+Base.@kwdef struct LSCV <: BandwidthMethod
     nPoints::Int = 2048
     initBandwidth::Float64 = NaN
     boundary::Tuple{Float64,Float64} = (NaN,NaN)

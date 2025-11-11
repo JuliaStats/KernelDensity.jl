@@ -78,8 +78,8 @@ end
 # custom broadcast prepares for interpolation only once for all xs
 function Base.Broadcast.broadcasted(::typeof(pdf), ke::UnivariateKernelEstimate, xs, method::Symbol)
         if method == :precomputed
+            isassigned(ke.precomputedPDF) || error("PDF must be first precomputed.")
             den = ke.precomputedPDF[]
-            den === nothing && error("PDF must be first precomputed.")
             itp_u = interpolate(den.values, BSpline(Quadratic(Line(OnGrid()))))
             itp = scale(itp_u, den.xs)
             etp = extrapolate(itp, 0.)

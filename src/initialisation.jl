@@ -27,7 +27,7 @@ struct KernelEstimate{VF<:VariateForm, VS<:ValueSupport, KernelType<:Distributio
     prior::PriorDist
     kernel::KernelType
     bandwidth::Float64
-    precomputedPDF::Base.RefValue{PDF} # the value it is mutable
+    precomputedPDF::Base.RefValue{PDF} # the value here is mutable
 
     # these constructors guarantee type agreement
     function KernelEstimate(data::Matrix{Float64}, prior::PriorDist, kernel::KernelType, bandwidth::Float64, precomputedPDF::PDF) where {

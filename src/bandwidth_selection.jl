@@ -25,10 +25,11 @@ function get_bandwidth(::Silverman, data::AbstractVector{<:Real}, kernelType = N
     return alpha * width * ndata^(-0.2), nothing
 end
 
-Base.@kwdef struct LSCV <: BandwidthMethod
-    nPoints::Int = 2048
-    initBandwidth::Float64 = NaN
-    boundary::Tuple{Float64,Float64} = (NaN,NaN)
+struct LSCV <: BandwidthMethod # default args in constructor for backwards comp
+    nPoints::Int
+    initBandwidth::Float64
+    boundary::Tuple{Float64,Float64}
+    LSCV(nPoints = 2048, initBandwidth = NaN, boundary = (NaN,NaN)) = new(nPoints, initBandwidth, boundary)
 end
 
 # Select bandwidth using least-squares cross validation, from:

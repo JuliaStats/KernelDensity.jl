@@ -29,6 +29,7 @@ optional keyword arguments are
   `kernel_dist` function.
 * `bandwidth`: the bandwidth of the kernel. Default is to use Silverman's
   rule.
+* `weights`: `StatsBase.Weights` vector specifying weights for each observation (defaults to uniform weights).
 
 The `UnivariateKDE` object `U` contains gridded coordinates (`U.x`) and the density
 estimate (`U.density`). These are typically sufficient for plotting.

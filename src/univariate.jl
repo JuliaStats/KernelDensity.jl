@@ -21,11 +21,11 @@ mutable struct UnivariateKDE{R<:AbstractRange} <: AbstractKDE
 end
 
 # construct kernel from bandwidth
-kernel_dist(::Type{Normal},w::Real) = Normal(0.0,w)
-kernel_dist(::Type{Uniform},w::Real) = (s = 1.7320508075688772*w; Uniform(-s,s))
+#kernel_dist(::Type{Normal},w::Real) = Normal(0.0,w)
+#kernel_dist(::Type{Uniform},w::Real) = (s = 1.7320508075688772*w; Uniform(-s,s))
 
-const LocationScale = Union{Laplace,Logistic,SymTriangularDist}
-kernel_dist(::Type{D},w::Real) where {D} = (s = w/std(D(0.0,1.0)); D(0.0,s))
+#const LocationScale = Union{Laplace,Logistic,SymTriangularDist}
+#kernel_dist(::Type{D},w::Real) where {D} = (s = w/std(D(0.0,1.0)); D(0.0,s))
 
 
 # Silverman's rule of thumb for KDE bandwidth selection

@@ -4,7 +4,7 @@ using KernelDensity
 
 import KernelDensity: kernel_dist, default_bandwidth, kde_boundary, kde_range, tabulate
 
-for D in [Tuple{Normal,Normal}, Tuple{Uniform,Uniform}, Tuple{Logistic,Logistic},
+@testset "kernel_dist: D=$D" for D in [Tuple{Normal,Normal}, Tuple{Uniform,Uniform}, Tuple{Logistic,Logistic},
           (Normal, Normal), (Uniform, Uniform), (Logistic, Logistic)]
     d = KernelDensity.kernel_dist(D,(0.5,0.5))
     dx,dy = d
@@ -17,7 +17,7 @@ end
 r = kde_range((-2.0,2.0), 128)
 @test step(r) > 0
 
-for X in ([0.0], [0.0,0.0], [0.0,0.5], [-0.5:0.1:0.5;])
+@testset "X=$X" for X in ([0.0], [0.0,0.0], [0.0,0.5], [-0.5:0.1:0.5;])
     w = default_bandwidth(X)
     @test w > 0
     lo, hi = kde_boundary(X,w)
@@ -62,8 +62,10 @@ for X in ([0.0], [0.0,0.0], [0.0,0.5], [-0.5:0.1:0.5;])
 end
 
 k11 = kde([0.0 0.0; 1.0 1.0], (r,r), bandwidth=(1,1), weights=[0,1])
-k12 = kde([1.0 1.0], (r,r), bandwidth=(1,1))
-@test k11.density ≈ k12.density
+@testset "weight argument" begin
+    k12 = kde([1.0 1.0], (r,r), bandwidth=(1,1))
+    @test k11.density ≈ k12.density
+end
 
 @testset "broadcasting. Issue 63" begin
     xyvals = [0.0, 1.0]

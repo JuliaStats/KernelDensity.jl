@@ -79,7 +79,7 @@ end
 function conv(k::BivariateKDE, dist::Tuple{UnivariateDistribution,UnivariateDistribution})
     # Transform to Fourier basis
     Kx, Ky = size(k.density)
-    ft = rfft(k.density)
+    ft = rfft(k.density)::Matrix{Complex{Float64}}
 
     distx, disty = dist
 

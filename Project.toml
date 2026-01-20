@@ -1,6 +1,6 @@
 name = "KernelDensity"
 uuid = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
-version = "0.6.10"
+version = "0.6.11"
 authors = ["Simon Byrne and various contributors"]
 
 [deps]

@@ -6,7 +6,7 @@ using Distributions
 using Interpolations
 
 import Distributions: twoπ, pdf
-import FFTW: rfft, irfft
+import FFTA: rfft, irfft
 
 export kde, kde_lscv, UnivariateKDE, BivariateKDE, InterpKDE, pdf
 

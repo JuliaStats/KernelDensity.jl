@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/JuliaStats/KernelDensity.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/JuliaStats/KernelDensity.jl/actions/workflows/CI.yml)
 [![codecov](https://codecov.io/github/JuliaStats/KernelDensity.jl/graph/badge.svg?token=Pvge67IhU8)](https://codecov.io/github/JuliaStats/KernelDensity.jl)
-[![Stable Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://juliastats.org/KernelDensity.jl/stable/)
+[![Stable Docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliastats.org/KernelDensity.jl/stable/)
 
 Kernel density estimators for Julia.
 

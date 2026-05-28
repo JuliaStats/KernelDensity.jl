@@ -1,7 +1,7 @@
 """
 $(TYPEDEF)
 
-Store both grid and density for KDE over ``ℝ²``.
+Store both grid and density for KDE over the real line.
 
 Reading the fields directly is part of the API, and
 

@@ -108,10 +108,19 @@ function tabulate(data::AbstractVector{<:Real}, midpoints::R, weights::Weights=d
     for (i,x) in enumerate(data)
         k = searchsortedfirst(midpoints,x)
         j = k-1
-        if 1 <= j <= npoints-1
-            grid[j] += (midpoints[k]-x)*ainc*weights[i]
-            grid[k] += (x-midpoints[j])*ainc*weights[i]
+        @assert j <= npoints -1
+        mid_above = midpoints[k]
+
+        if j >= 1
+            mid_below = midpoints[j]
+        else
+            @assert j==0
+            mid_below = midpoints[1] - s # Imaginary point outside boundry
+            j=npoints # Wrap around and allocate this to the top
         end
+        grid[j] += (mid_above-x)*ainc*weights[i]
+        grid[k] += (x-mid_below)*ainc*weights[i]
+
     end
 
     # returns an un-convolved KDE

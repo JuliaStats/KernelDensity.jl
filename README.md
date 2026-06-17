@@ -78,14 +78,13 @@ The `BivariateKDE` object `B` contains gridded coordinates (`B.x` and `B.y`) and
 estimate (`B.density`).
 
 ### Interpolation
-
 The KDE objects are stored as gridded density values, with attached
 coordinates. These are typically sufficient for plotting (see above), but
 intermediate values can be interpolated using the
-[Interpolations.jl](https://github.com/tlycken/Interpolations.jl) package via the `pdf` method
+[FastInterpolations.jl](https://github.com/ProjectTorreyPines/FastInterpolations.jl) package via the `pdf` method
 (extended from Distributions.jl).
 
-```
+```julia
 pdf(k::UnivariateKDE, x)
 pdf(k::BivariateKDE, x, y)
 ```
@@ -93,11 +92,15 @@ pdf(k::BivariateKDE, x, y)
 where `x` and `y` are real numbers or arrays.
 
 If you are making multiple calls to `pdf`, it will be more efficient to
-construct an intermediate `InterpKDE` to store the interpolation structure:
+construct an intermediate object once to store the interpolation structure.
+Two interpolation backends are available:
 
-```
-ik = InterpKDE(k)
+```julia
+ik = InterpKDE(k)       # Interpolations.jl backend
+ik = FastInterpKDE(k)   # FastInterpolations.jl backend (faster)
 pdf(ik, x)
 ```
 
-`InterpKDE` will pass any extra arguments to `interpolate`.
+- `InterpKDE` ([Interpolations.jl](https://github.com/JuliaMath/Interpolations.jl)) passes any extra arguments to `interpolate`.
+- `FastInterpKDE` ([FastInterpolations.jl](https://github.com/ProjectTorreyPines/FastInterpolations.jl)) takes a `method` keyword to select the interpolation scheme
+- `pdf(k, x)` uses `FastInterpKDE` by default.

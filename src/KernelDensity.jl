@@ -4,6 +4,7 @@ using DocStringExtensions: TYPEDEF, FIELDS
 using StatsBase
 using Distributions
 using Interpolations
+using FastInterpolations
 
 import Distributions: twoπ, pdf
 import FFTA: rfft, irfft

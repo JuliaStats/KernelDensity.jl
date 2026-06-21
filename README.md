@@ -80,9 +80,9 @@ estimate (`B.density`).
 ### Interpolation
 The KDE objects are stored as gridded density values, with attached
 coordinates. These are typically sufficient for plotting (see above), but
-intermediate values can be interpolated using the
-[FastInterpolations.jl](https://github.com/ProjectTorreyPines/FastInterpolations.jl) package via the `pdf` method
-(extended from Distributions.jl).
+intermediate values can be evaluated with the `pdf` method (extended from
+Distributions.jl), which by default interpolates through the
+[FastInterpolations.jl](https://github.com/ProjectTorreyPines/FastInterpolations.jl) backend.
 
 ```julia
 pdf(k::UnivariateKDE, x)
@@ -91,16 +91,26 @@ pdf(k::BivariateKDE, x, y)
 
 where `x` and `y` are real numbers or arrays.
 
-If you are making multiple calls to `pdf`, it will be more efficient to
-construct an intermediate object once to store the interpolation structure.
-Two interpolation backends are available:
+The default is a quadratic, C¹-continuous interpolation; you can select a different
+scheme — and its boundary condition — with the `method` keyword:
+
+```julia
+import FastInterpolations as FI
+pdf(k, x; method = FI.LinearInterp())
+pdf(k, x; method = FI.CubicInterp())
+pdf(k, x; method = FI.CubicInterp(bc = FI.ZeroCurvBC())) # with a boundary condition of your choice
+```
+
+See the [FastInterpolations.jl docs](https://projecttorreypines.github.io/FastInterpolations.jl/stable/boundary-conditions/overview/) for the available boundary conditions.
+
+For repeated calls — or to use the Interpolations.jl backend instead — it is
+more efficient to construct an interpolation object once and reuse it:
 
 ```julia
 ik = InterpKDE(k)       # Interpolations.jl backend
-ik = FastInterpKDE(k)   # FastInterpolations.jl backend (faster)
+ik = FastInterpKDE(k)   # FastInterpolations.jl backend
 pdf(ik, x)
 ```
 
 - `InterpKDE` ([Interpolations.jl](https://github.com/JuliaMath/Interpolations.jl)) passes any extra arguments to `interpolate`.
-- `FastInterpKDE` ([FastInterpolations.jl](https://github.com/ProjectTorreyPines/FastInterpolations.jl)) takes a `method` keyword to select the interpolation scheme
-- `pdf(k, x)` uses `FastInterpKDE` by default.
+- `FastInterpKDE` ([FastInterpolations.jl](https://github.com/ProjectTorreyPines/FastInterpolations.jl)) takes a `method` keyword to select the interpolation scheme.

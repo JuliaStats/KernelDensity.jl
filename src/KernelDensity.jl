@@ -4,11 +4,12 @@ using DocStringExtensions: TYPEDEF, FIELDS
 using StatsBase
 using Distributions
 using Interpolations
+using FastInterpolations
 
 import Distributions: twoπ, pdf
 import FFTA: rfft, irfft
 
-export kde, kde_lscv, UnivariateKDE, BivariateKDE, InterpKDE, pdf
+export kde, kde_lscv, UnivariateKDE, BivariateKDE, InterpKDE, FastInterpKDE, pdf
 
 abstract type AbstractKDE end
 
@@ -18,5 +19,6 @@ Base.Broadcast.broadcastable(x::AbstractKDE) = Ref(x)
 include("univariate.jl")
 include("bivariate.jl")
 include("interp.jl")
+include("fast_interp.jl")
 
 end # module

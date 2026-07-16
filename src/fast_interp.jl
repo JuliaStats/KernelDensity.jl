@@ -18,7 +18,7 @@ end
 
 pdf(fik::FastInterpKDE, x::Real...)         = fik.itp(x...)
 pdf(fik::FastInterpKDE, xs::AbstractVector) = fik.itp(xs)
-pdf(fik::FastInterpKDE, xs::AbstractVector, ys::AbstractVector) = [fik.itp(x, y) for x in xs, y in ys]
+pdf(fik::FastInterpKDE, xs::AbstractVector, ys::AbstractVector) = fik.itp(GriddedQuery(xs, ys))
 
 
 # One-shot API: a direct query builds no persistent interpolant.
@@ -32,8 +32,7 @@ function pdf(k::BivariateKDE, x::Real, y::Real; method::AbstractInterpMethod = F
     return interp((k.x, k.y), k.density, (x, y); method = method, extrap = FillExtrap(0.0))
 end
 
-# 2D grid: build the interpolant once, then evaluate the xs × ys grid (the ND one-shot
-# has no efficient outer-product grid form).
+# 2D grid: use ND one-shot with GriddedQuery 
 function pdf(k::BivariateKDE, xs::AbstractVector, ys::AbstractVector; method::AbstractInterpMethod = FI_DefaultInterpMethod)
-    return pdf(FastInterpKDE(k; method = method), xs, ys)
+    return interp((k.x, k.y), k.density, GriddedQuery(xs, ys); method = method, extrap = FillExtrap(0.0))
 end

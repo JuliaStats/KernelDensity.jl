@@ -78,26 +78,39 @@ The `BivariateKDE` object `B` contains gridded coordinates (`B.x` and `B.y`) and
 estimate (`B.density`).
 
 ### Interpolation
-
 The KDE objects are stored as gridded density values, with attached
 coordinates. These are typically sufficient for plotting (see above), but
-intermediate values can be interpolated using the
-[Interpolations.jl](https://github.com/tlycken/Interpolations.jl) package via the `pdf` method
-(extended from Distributions.jl).
+intermediate values can be evaluated with the `pdf` method (extended from
+Distributions.jl), which by default interpolates through the
+[FastInterpolations.jl](https://github.com/ProjectTorreyPines/FastInterpolations.jl) backend.
 
-```
+```julia
 pdf(k::UnivariateKDE, x)
 pdf(k::BivariateKDE, x, y)
 ```
 
 where `x` and `y` are real numbers or arrays.
 
-If you are making multiple calls to `pdf`, it will be more efficient to
-construct an intermediate `InterpKDE` to store the interpolation structure:
+The default is a quadratic, C¹-continuous interpolation; you can select a different
+scheme — and its boundary condition — with the `method` keyword:
 
+```julia
+import FastInterpolations as FI
+pdf(k, x; method = FI.LinearInterp())
+pdf(k, x; method = FI.CubicInterp())
+pdf(k, x; method = FI.CubicInterp(bc = FI.ZeroCurvBC())) # with a boundary condition of your choice
 ```
-ik = InterpKDE(k)
+
+See the [FastInterpolations.jl docs](https://projecttorreypines.github.io/FastInterpolations.jl/stable/boundary-conditions/overview/) for the available boundary conditions.
+
+For repeated calls — or to use the Interpolations.jl backend instead — it is
+more efficient to construct an interpolation object once and reuse it:
+
+```julia
+ik = InterpKDE(k)       # Interpolations.jl backend
+ik = FastInterpKDE(k)   # FastInterpolations.jl backend
 pdf(ik, x)
 ```
 
-`InterpKDE` will pass any extra arguments to `interpolate`.
+- `InterpKDE` ([Interpolations.jl](https://github.com/JuliaMath/Interpolations.jl)) passes any extra arguments to `interpolate`.
+- `FastInterpKDE` ([FastInterpolations.jl](https://github.com/ProjectTorreyPines/FastInterpolations.jl)) takes a `method` keyword to select the interpolation scheme.

@@ -77,6 +77,28 @@ e.g. `boundary` now takes a tuple of tuples `((xlo,xhi),(ylo,yhi))`.
 The `BivariateKDE` object `B` contains gridded coordinates (`B.x` and `B.y`) and the bivariate density
 estimate (`B.density`).
 
+#### Marginal densities
+
+`B.density[i, j]` estimates the joint density at `(B.x[i], B.y[j])`.
+A row holds x fixed and a column holds y fixed. For example, on a rectangular grid:
+
+```@example marginals
+using KernelDensity
+
+x = [-1.0, -0.5, 0.0, 0.5, 1.0]
+y = [8.0, 12.0, 9.0, 15.0, 11.0]
+B = kde((x, y); npoints=(128, 64), boundary=((-4.0, 4.0), (-5.0, 30.0)))
+dx, dy = step(B.x), step(B.y)
+fx = vec(sum(B.density; dims=2)) .* dy  # integrate over y at each x
+fy = vec(sum(B.density; dims=1)) .* dx  # integrate over x at each y
+(length(fx), length(fy))
+```
+
+For example, `fy[j]` is a density at `B.y[j]`. To estimate the probability
+between two adjacent y coordinates, integrate once more: the trapezoid
+approximation is `(fy[j] + fy[j+1]) * dy / 2`.
+The same calculation with `fx` and `dx` gives the probability for an x interval.
+
 ### Interpolation
 
 The KDE objects are stored as gridded density values, with attached
